@@ -161,10 +161,11 @@ isOperationConfirmed()
 	
 	do
 	{
+        printf("Enter the number corresponding to your choice: ");
 		isInputValid = getInteger(&input);
 	} while (!isMenuInputValid(isInputValid, 1, 2, input));
 	
-	return input == 1;
+	return (input == 1);
 }
 
 void 
@@ -263,11 +264,12 @@ printEntry(entryType entry, FILE* outputFile)
     }
 }
 
-void
+bool
 initEntry(entryType entries[], int* entryCount)
 {
 	string20 tempLang;
 	string20 tempTrans;
+    bool isNewEntryInitialized = false;
 	char afterLang;
 	char afterTrans;
 	int matchCount = 0;
@@ -279,8 +281,9 @@ initEntry(entryType entries[], int* entryCount)
 		afterTrans = '\n';
 		initString(tempLang);
 		initString(tempTrans);
-		
 		getLTPair(tempLang, tempTrans, &afterLang, &afterTrans);
+        formatLanguage(tempLang);
+        formatTranslation(tempTrans);
 	} while (!isLTPairValid(tempLang, tempTrans, afterLang, afterTrans));
 	
 	
@@ -299,28 +302,169 @@ initEntry(entryType entries[], int* entryCount)
 		printf("%d entries with matching translation found.\n", matchCount);	
 	}
 	
-	printf("Would you like to create a new entry?: ");
+	printf("Would you like to add the entered translation to a new entry?\n");
 	if (isOperationConfirmed())
 	{
 		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].language, tempLang);
 		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].translation, tempTrans);
 		entries[*entryCount].pairCount = 1;
 		(*entryCount)++;
+        printf(GREENFORMATSTRING, "New entry successfully created\n");
+        isNewEntryInitialized = true;
 	}	
-	
 	else
 	{
-		printf("Entry addition cancelled. Press any key to return to menu ");
+		printf(YELLOWFORMATSTRING, "Entry addition cancelled. Press any key to return to menu\n");
 		getch();
 		fflush(stdin);
 	}
+    return isNewEntryInitialized;
 }
 
 void
 addLTPair(entryType* entry)
 {
-	
+    string20 langToAdd;
+    string20 transToAdd;
+    char charAfterLang;
+    char charAfterTrans;
+
+	do 
+    {
+        initString(langToAdd);
+        initString(transToAdd);
+        charAfterLang = '\n';
+        charAfterTrans = '\n';
+        getLTPair(langToAdd, transToAdd, &charAfterLang, &charAfterTrans);
+        formatLanguage(langToAdd);
+        formatTranslation(transToAdd);
+
+    } while (!isLTPairValid(langToAdd, transToAdd, charAfterLang, charAfterTrans));
+
+    if (searchLTPair(*entry, langToAdd, transToAdd) == -1)
+    {
+        printf("Would you like to add this translation?\n");
+    
+        if (isOperationConfirmed())
+        {
+            strcpy(entry->pairs[entry->pairCount].language, langToAdd);
+            strcpy(entry->pairs[entry->pairCount].translation, transToAdd);
+            entry->pairCount++;
+            sortEntry(entry);
+            printf(GREENFORMATSTRING, "Translation successfully added\n");
+        }
+        else
+        {
+            printf(YELLOWFORMATSTRING, "Addition cancelled\n");
+        } 
+    }
+    else
+    {
+        printf(YELLOWFORMATSTRING, "The translation entered already exists in this entry\n");
+
+    }
 }
 
+void 
+addEntry(entryType entries[], int* entryCount)
+{
+    bool isNewEntryInitialized;
+    bool willAddTranslation;
 
+    isNewEntryInitialized = initEntry(entries, entryCount);
 
+    if (isNewEntryInitialized)
+    {
+        do
+        {
+            printf("Would you like to add another translation?\n");
+            willAddTranslation = isOperationConfirmed();
+
+            if (willAddTranslation)
+            {
+                addLTPair(&entries[*entryCount - 1]);
+            }
+        
+        } while (willAddTranslation);
+    }
+}
+
+void 
+printEntriesAsMenu(entryType entries[], int indexesToPrint[], int entriesToPrintCount)
+{
+    int i;
+
+    for (i = 0; i < entriesToPrintCount; i++)
+    {
+        printEntry(entries[indexesToPrint[i]], stdout);
+        printf("\033[0;33m - %d\033[0m", i + 1);
+        printf("\n");
+    }
+}
+
+void 
+addTranslation(entryType entries[], int entryCount)
+{
+    string20 langKey;
+    string20 transKey;
+    char charAfterLang;
+    char charAfterTrans;
+    int entriesWithKeyCount = 0;
+    int indexesOfEntriesWithKey[MAX_ENTRIES];
+    int indexOfEntryToEdit;
+    int i;
+
+    printf("Enter the word and language you would like to translate\n");
+    do
+	{
+		charAfterLang = '\n';
+		charAfterTrans = '\n';
+		initString(langKey);
+		initString(transKey);
+        getLTPair(langKey, transKey, &charAfterLang, &charAfterTrans);
+        formatLanguage(langKey);
+		formatTranslation(transKey);
+	} while (!isLTPairValid(langKey, transKey, charAfterLang, charAfterTrans));
+
+    for (i = 0; i < entryCount; i++)
+    {
+        if (searchLTPair(entries[i], langKey, transKey) != -1)
+        {
+            indexesOfEntriesWithKey[entriesWithKeyCount] = i;
+            entriesWithKeyCount++;
+        }
+    }
+    
+    indexOfEntryToEdit = 0;
+    if (entriesWithKeyCount > 1)
+    {
+        printEntriesAsMenu(entries, indexesOfEntriesWithKey, entriesWithKeyCount);
+        printf("Choose an entry where you would like to add a translation?\n");
+        printf("Enter the number corresponding to the entry (1 - %d)\n", entriesWithKeyCount);
+        indexOfEntryToEdit =  getAndValidateMenuInput(1, entriesWithKeyCount) - 1;
+        system("cls");
+    }
+    if (entriesWithKeyCount > 0)
+    {   
+        do
+        {   system("cls");
+            printEntry(entries[indexOfEntryToEdit], stdout);
+            printf("Enter language and translation to be added\n");
+            addLTPair(&entries[indexOfEntryToEdit]);
+            printf("Would you like to add another translation?\n");
+        } while (isOperationConfirmed());
+        sortEntry(&entries[indexOfEntryToEdit]);
+    }
+    else
+    {
+        printf(REDFORMATSTRING, "The word and corresponding language are not found in any entry\n");
+        printf("You must first initialize a new entry\n");
+        printf("Press any key to continue\n");
+        getch();
+    }
+
+	
+	
+	
+	   
+}
