@@ -150,6 +150,22 @@ isLTPairValid(string20 tempLanguage, string20 tempTranslation, char characterAft
     return isValid;
 }
 
+bool
+isOperationConfirmed()
+{
+	int input;
+	bool isInputValid;
+	printf("1 - Yes\n");
+	printf("2 - No\n");
+	
+	do
+	{
+		isInputValid = getInteger(&input);
+	} while (!isMenuInputValid(isInputValid, 1, 2, input));
+	
+	return input == 1;
+}
+
 void 
 formatLanguage(string20 language)
 {
@@ -206,12 +222,6 @@ sortEntry(entryType* entry)
     }
 }
 
-void
-addLTPair(entryType* entry)
-{
-	
-}
-
 int 
 searchLTPair(entryType entry, string20 languageKey, string20 translationKey)
 {
@@ -253,6 +263,12 @@ printEntry(entryType entry, FILE* outputFile)
 }
 
 void
+addLTPair(entryType* entry)
+{
+	
+}
+
+void
 addEntry(entryType entries[], int* entryCount)
 {
 	string20 tempLang;
@@ -286,8 +302,19 @@ addEntry(entryType entries[], int* entryCount)
 		
 		printf("Entries with matching translation found.\n");
 		printf("Would you like to create a new entry? ");
-		
-			
+		if (isOperationConfirmed())
+		{
+			strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].language, tempLang);
+			strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].translation, tempTrans);
+			(*entryCount)++;
+		}
+	}
+	
+	else
+	{
+		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].language, tempLang);
+		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].translation, tempTrans);
+		(*entryCount)++;
 	}
 }
 
