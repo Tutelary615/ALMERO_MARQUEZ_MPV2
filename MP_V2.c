@@ -186,24 +186,108 @@ formatTranslation(string20 translation)
 }
 
 void 
-sortEntry(entryType* e)
+sortEntry(entryType* entry)
 {
     int i; 
     int j;
     LTPairType temp;
 
-    for (i = 0; i < e->pairCount - 1; i++)
+    for (i = 0; i < entry->pairCount - 1; i++)
     {
-        for (j = 0; j < e->pairCount - 1 - i; j++)
+        for (j = 0; j < entry->pairCount - 1 - i; j++)
         {
-            if (strcmp(e->pairs[j].language,  e->pairs[j + 1].language) == 1)
+            if (strcmp(entry->pairs[j].language,  entry->pairs[j + 1].language) == 1)
             {
-                temp = e->pairs[j];
-                e->pairs[j] = e->pairs[j + 1];
-                e->pairs[j + 1] = temp;
+                temp = entry->pairs[j];
+                entry->pairs[j] = entry->pairs[j + 1];
+                entry->pairs[j + 1] = temp;
             }
         }
     }
+}
 
+void
+addLTPair(entryType* entry)
+{
+	
+}
+
+int 
+searchLTPair(entryType entry, string20 languageKey, string20 translationKey)
+{
+    int i;
+    int indexOfKey = -1;
+    int startIndex = 0;
+    int endIndex = entry.pairCount - 1;
+
+    while (strcmp(languageKey, entry.pairs[startIndex].language) == 1 && startIndex < entry.pairCount) 
+    {
+        startIndex++;
+    }
+
+    while (strcmp(languageKey, entry.pairs[endIndex].language) == -1 && endIndex > startIndex)
+    {
+        endIndex--;
+    }
+    
+    for (i = startIndex; i <= endIndex && indexOfKey == -1; i++)
+    {
+        if((strcmp(languageKey, entry.pairs[i].language) == 0) && 
+		   (strcmp(translationKey, entry.pairs[i].translation) == 0))
+        {
+            indexOfKey = i;
+        }
+    }
+
+    return indexOfKey;
+}
+
+void 
+printEntry(entryType entry, FILE* outputFile)
+{
+    int i;
+    for (i = 0; i < entry.pairCount; i++)
+    {
+        fprintf(outputFile, "%s: %s\n", entry.pairs[i].language, entry.pairs[i].translation);
+    }
+}
+
+void
+addEntry(entryType entries[], int* entryCount)
+{
+	string20 tempLang;
+	string20 tempTrans;
+	char afterLang;
+	char afterTrans;
+	int i;
+	
+	do
+	{
+		afterLang = '\n';
+		afterTrans = '\n';
+		initString(tempLang);
+		initString(tempTrans);
+		
+		getLTPair(tempLang, tempTrans, &afterLang, &afterTrans);
+	} while (!isLTPairValid(tempLang, tempTrans, afterLang, afterTrans));
+	
+	
+	
+	if (entryCount > 0)
+	{
+		for (i = 0; i < *entryCount; i++)
+		{
+			if (searchLTPair(entries[i], tempLang, tempTrans) != -1)
+			{
+				printEntry(entries[i], stdout);
+				printf("\n");
+			}			
+		}
+		
+		printf("Entries with matching translation found.\n");
+		printf("Would you like to create a new entry? ");
+		
+			
+	}
 }
 
