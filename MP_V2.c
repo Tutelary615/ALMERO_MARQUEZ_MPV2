@@ -118,7 +118,7 @@ manageDataMenu(int entryCount)
 }
 
 void
-getPair(string20 tempLanguage, string20 tempTranslation, char* characterAfterLanguage, char* characterAfterTranslation)
+getLTPair(string20 tempLanguage, string20 tempTranslation, char* characterAfterLanguage, char* characterAfterTranslation)
 {
 	
 	printf("Enter language: ");
@@ -184,3 +184,26 @@ formatTranslation(string20 translation)
     }
 
 }
+
+void 
+sortEntry(entryType* e)
+{
+    int i; 
+    int j;
+    LTPairType temp;
+
+    for (i = 0; i < e->pairCount - 1; i++)
+    {
+        for (j = 0; j < e->pairCount - 1 - i; j++)
+        {
+            if (strcmp(e->pairs[j].language,  e->pairs[j + 1].language) == 1)
+            {
+                temp = e->pairs[j];
+                e->pairs[j] = e->pairs[j + 1];
+                e->pairs[j + 1] = temp;
+            }
+        }
+    }
+
+}
+
