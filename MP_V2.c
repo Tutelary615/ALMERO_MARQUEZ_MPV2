@@ -304,6 +304,7 @@ initEntry(entryType entries[], int* entryCount)
 	{
 		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].language, tempLang);
 		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].translation, tempTrans);
+		entries[*entryCount].pairCount = 1;
 		(*entryCount)++;
 	}	
 	
