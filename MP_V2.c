@@ -264,7 +264,7 @@ printEntry(entryType entry, FILE* outputFile)
 }
 
 void
-addEntry(entryType entries[], int* entryCount)
+initEntry(entryType entries[], int* entryCount)
 {
 	string20 tempLang;
 	string20 tempTrans;
