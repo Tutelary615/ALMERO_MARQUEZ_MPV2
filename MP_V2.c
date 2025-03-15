@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include "MP_HEADER.h"
 
 void 
@@ -114,4 +115,72 @@ manageDataMenu(int entryCount)
     printf("Select and option from the menu above\n");
     choice = getAndValidateMenuInput(1, upperBound);
     return choice;
+}
+
+void
+getPair(string20 tempLanguage, string20 tempTranslation, char* characterAfterLanguage, char* characterAfterTranslation)
+{
+	
+	printf("Enter language: ");
+	fgets(tempLanguage, 21, stdin);
+    if (strlen(tempLanguage) == 20)
+    {
+        *characterAfterLanguage = getc(stdin);
+    }
+    fflush(stdin);
+	
+	printf("Enter translation: ");
+	fgets(tempTranslation, 21, stdin);
+    if (strlen(tempTranslation) == 20)
+    {
+        *characterAfterTranslation = getc(stdin);
+    }
+    fflush(stdin);	
+}
+
+bool 
+isLTPairValid(string20 tempLanguage, string20 tempTranslation, char characterAfterLanguage, char characterAfterTranslation)
+{
+    bool isValid = true;
+    if (characterAfterLanguage != '\n' || characterAfterTranslation != '\n' || strlen(tempLanguage) == 0 || strlen(tempTranslation) == 0)
+    {
+        printf(REDFORMATSTRING, "Input(s) invalid. Try again.\n");
+        isValid = false;
+    }
+    return isValid;
+}
+
+void 
+formatLanguage(string20 language)
+{
+    int i;
+    int lengthOfLanguage = strlen(language);
+    if (lengthOfLanguage < 20)
+    {
+        language[lengthOfLanguage - 1] = '\0';
+        lengthOfLanguage--;
+    }
+    
+    language[0] = toupper(language[0]);
+    for (i = 1; i < lengthOfLanguage; i++)
+    {
+        language[i] = tolower(language[i]);
+    }
+}
+
+void 
+formatTranslation(string20 translation)
+{
+    int i;
+    int lengthOfTranslation = strlen(translation);
+    if (lengthOfTranslation < 20)
+    {
+        translation[lengthOfTranslation - 1] = '\0';
+        lengthOfTranslation--;   
+    }
+    for (i = 0; i < lengthOfTranslation; i++)
+    {
+        translation[i] = tolower(translation[i]);
+    }
+
 }
