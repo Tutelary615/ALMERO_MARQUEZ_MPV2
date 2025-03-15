@@ -67,7 +67,7 @@ getAndValidateMenuInput(int lowerBound, int upperBound)
 }
 
 void 
-printMenu(string50 choices[], int numberOfChoices)
+printMenu(string30 choices[], int numberOfChoices)
 {
     int i;
     for (i = 0; i < numberOfChoices; i++)
@@ -81,7 +81,7 @@ mainMenu()
 {
 	int choice;
 	bool isChoiceValid;
-	string50 options[3] = {"Manage Data", "Translate Menu", "Exit"};
+	string30 options[3] = {"Manage Data", "Translate Menu", "Exit"};
 	
 	printMenu(options, 3);
 	
@@ -97,7 +97,7 @@ mainMenu()
 int 
 manageDataMenu(int entryCount)
 {
-    string50 options[10] = {"Add Entry", "Import Data", "Add Translations", "Delete Entry", "Delete Translation",
+    string30 options[10] = {"Add Entry", "Import Data", "Add Translations", "Delete Entry", "Delete Translation",
                             "Display All Entries", "Search by Word", "Search By Translation", "Export Data", "Exit"};
     int choice;
     int upperBound;
