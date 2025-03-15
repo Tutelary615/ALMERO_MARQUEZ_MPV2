@@ -12,7 +12,6 @@ typedef char string50[51];
 typedef struct {
     string20 language;
     string20 translation;
-
 } LTPairType;
 
 typedef struct {
