@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <conio.h>
 #include "MP_HEADER.h"
 
 void 
@@ -263,18 +264,13 @@ printEntry(entryType entry, FILE* outputFile)
 }
 
 void
-addLTPair(entryType* entry)
-{
-	
-}
-
-void
 addEntry(entryType entries[], int* entryCount)
 {
 	string20 tempLang;
 	string20 tempTrans;
 	char afterLang;
 	char afterTrans;
+	int matchCount = 0;
 	int i;
 	
 	do
@@ -288,33 +284,42 @@ addEntry(entryType entries[], int* entryCount)
 	} while (!isLTPairValid(tempLang, tempTrans, afterLang, afterTrans));
 	
 	
-	
-	if (entryCount > 0)
+	for (i = 0; i < *entryCount; i++)
 	{
-		for (i = 0; i < *entryCount; i++)
+		if (searchLTPair(entries[i], tempLang, tempTrans) != -1)
 		{
-			if (searchLTPair(entries[i], tempLang, tempTrans) != -1)
-			{
-				printEntry(entries[i], stdout);
-				printf("\n");
-			}			
-		}
-		
-		printf("Entries with matching translation found.\n");
-		printf("Would you like to create a new entry? ");
-		if (isOperationConfirmed())
-		{
-			strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].language, tempLang);
-			strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].translation, tempTrans);
-			(*entryCount)++;
-		}
+			printEntry(entries[i], stdout);
+			printf("\n");
+			matchCount++;
+		}			
 	}
 	
-	else
+	if (matchCount > 0)
+	{
+		printf("%d entries with matching translation found.\n", matchCount);	
+	}
+	
+	printf("Would you like to create a new entry?: ");
+	if (isOperationConfirmed())
 	{
 		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].language, tempLang);
 		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].translation, tempTrans);
 		(*entryCount)++;
+	}	
+	
+	else
+	{
+		printf("Entry addition cancelled. Press any key to return to menu ");
+		getch();
+		fflush(stdin);
 	}
 }
+
+void
+addLTPair(entryType* entry)
+{
+	
+}
+
+
 
