@@ -254,6 +254,22 @@ searchLTPair(entryType entry, string20 languageKey, string20 translationKey)
     return indexOfKey;
 }
 
+int
+searchAllEntriesForLTPair(entryType entries[], int entryCount, string20 langKey, string20 transKey, int entryIndexesWithKey[])
+{
+    int entriesWithKeyCount = 0;
+    int i;
+    for (i = 0; i < entryCount; i++)
+    {
+        if (searchLTPair(entries[i], langKey, transKey) != -1)
+        {
+            entryIndexesWithKey[entriesWithKeyCount] = i;
+            entriesWithKeyCount++;
+        }
+    }
+    return entriesWithKeyCount;
+}
+
 void 
 printEntry(entryType entry, FILE* outputFile)
 {
@@ -261,6 +277,23 @@ printEntry(entryType entry, FILE* outputFile)
     for (i = 0; i < entry.pairCount; i++)
     {
         fprintf(outputFile, "%s: %s\n", entry.pairs[i].language, entry.pairs[i].translation);
+    }
+}
+
+void 
+printEntryWithHighlight(entryType entry, string20 langKey, string20 transKey)
+{
+    int i;
+    for (i = 0; i < entry.pairCount; i++)
+    {
+        if (strcmp(entry.pairs[i].language, langKey) == 0 && strcmp(entry.pairs[i].translation, transKey) == 0)
+        {
+            printf( "\033[0;36m%s: %s <\033[0m\n", entry.pairs[i].language, entry.pairs[i].translation);
+        }
+        else 
+        {
+            printf("%s: %s\n", entry.pairs[i].language, entry.pairs[i].translation);
+        }
     }
 }
 
@@ -291,7 +324,7 @@ initEntry(entryType entries[], int* entryCount)
 	{
 		if (searchLTPair(entries[i], tempLang, tempTrans) != -1)
 		{
-			printEntry(entries[i], stdout);
+			printEntryWithHighlight(entries[i], tempLang, tempTrans);
 			printf("\n");
 			matchCount++;
 		}			
@@ -299,7 +332,7 @@ initEntry(entryType entries[], int* entryCount)
 	
 	if (matchCount > 0)
 	{
-		printf("%d entries with matching translation found.\n", matchCount);	
+		printf("%d entry/entries with matching translation found.\n", matchCount);	
 	}
 	
 	printf("Would you like to add the entered translation to a new entry?\n");
@@ -309,11 +342,13 @@ initEntry(entryType entries[], int* entryCount)
 		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].translation, tempTrans);
 		entries[*entryCount].pairCount = 1;
 		(*entryCount)++;
+        printf("\n");
         printf(GREENFORMATSTRING, "New entry successfully created\n");
         isNewEntryInitialized = true;
 	}	
 	else
 	{
+        printf("\n");
 		printf(YELLOWFORMATSTRING, "Entry addition cancelled. Press any key to return to menu\n");
 		getch();
 		fflush(stdin);
@@ -389,14 +424,16 @@ addEntry(entryType entries[], int* entryCount)
     }
 }
 
+
+
 void 
-printEntriesAsMenu(entryType entries[], int indexesToPrint[], int entriesToPrintCount)
+printEntriesAsMenuWithHighlight(entryType entries[], string20 langKey, string20 transKey, int indexesToPrint[], int entriesToPrintCount)
 {
     int i;
 
     for (i = 0; i < entriesToPrintCount; i++)
     {
-        printEntry(entries[indexesToPrint[i]], stdout);
+        printEntryWithHighlight(entries[indexesToPrint[i]], langKey, transKey);
         printf("\033[0;33m - %d\033[0m", i + 1);
         printf("\n");
     }
@@ -426,28 +463,21 @@ addTranslation(entryType entries[], int entryCount)
 		formatTranslation(transKey);
 	} while (!isLTPairValid(langKey, transKey, charAfterLang, charAfterTrans));
 
-    for (i = 0; i < entryCount; i++)
-    {
-        if (searchLTPair(entries[i], langKey, transKey) != -1)
-        {
-            indexesOfEntriesWithKey[entriesWithKeyCount] = i;
-            entriesWithKeyCount++;
-        }
-    }
     
+    entriesWithKeyCount = searchAllEntriesForLTPair(entries, entryCount, langKey, transKey, indexesOfEntriesWithKey);
     indexOfEntryToEdit = 0;
     if (entriesWithKeyCount > 1)
     {
-        printEntriesAsMenu(entries, indexesOfEntriesWithKey, entriesWithKeyCount);
+        printEntriesAsMenuWithHighlight(entries, langKey, transKey, indexesOfEntriesWithKey, entriesWithKeyCount);
         printf("Choose an entry where you would like to add a translation?\n");
         printf("Enter the number corresponding to the entry (1 - %d)\n", entriesWithKeyCount);
-        indexOfEntryToEdit =  getAndValidateMenuInput(1, entriesWithKeyCount) - 1;
+        indexOfEntryToEdit =  indexesOfEntriesWithKey[getAndValidateMenuInput(1, entriesWithKeyCount) - 1];
         system("cls");
     }
     if (entriesWithKeyCount > 0)
     {   
         do
-        {   system("cls");
+        {   
             printEntry(entries[indexOfEntryToEdit], stdout);
             printf("Enter language and translation to be added\n");
             addLTPair(&entries[indexOfEntryToEdit]);
