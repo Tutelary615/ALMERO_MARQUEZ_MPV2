@@ -479,6 +479,7 @@ addTranslation(entryType entries[], int entryCount)
         do
         {   
             printEntry(entries[indexOfEntryToEdit], stdout);
+            printf("\n");
             printf("Enter language and translation to be added\n");
             addLTPair(&entries[indexOfEntryToEdit]);
             printf("Would you like to add another translation?\n");
@@ -492,9 +493,5 @@ addTranslation(entryType entries[], int entryCount)
         printf("Press any key to continue\n");
         getch();
     }
-
-	
-	
-	
 	   
 }
