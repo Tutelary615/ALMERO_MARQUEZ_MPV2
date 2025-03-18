@@ -450,6 +450,7 @@ addTranslation(entryType entries[], int entryCount)
     int indexesOfEntriesWithKey[MAX_ENTRIES];
     int indexOfEntryToEdit;
     int i;
+    bool willAddAnotherTranslation;
 
     printf("Enter the word and language you would like to translate\n");
     do
@@ -465,7 +466,8 @@ addTranslation(entryType entries[], int entryCount)
 
     
     entriesWithKeyCount = searchAllEntriesForLTPair(entries, entryCount, langKey, transKey, indexesOfEntriesWithKey);
-    indexOfEntryToEdit = 0;
+    indexOfEntryToEdit = indexesOfEntriesWithKey[0];
+    
     if (entriesWithKeyCount > 1)
     {
         printEntriesAsMenuWithHighlight(entries, langKey, transKey, indexesOfEntriesWithKey, entriesWithKeyCount);
@@ -474,7 +476,8 @@ addTranslation(entryType entries[], int entryCount)
         indexOfEntryToEdit =  indexesOfEntriesWithKey[getAndValidateMenuInput(1, entriesWithKeyCount) - 1];
         system("cls");
     }
-    if (entriesWithKeyCount > 0)
+    
+    if (entriesWithKeyCount > 0 && entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY)
     {   
         do
         {   
@@ -482,11 +485,23 @@ addTranslation(entryType entries[], int entryCount)
             printf("\n");
             printf("Enter language and translation to be added\n");
             addLTPair(&entries[indexOfEntryToEdit]);
-            printf("Would you like to add another translation?\n");
-        } while (isOperationConfirmed());
+            
+            if (entries[indexOfEntryToEdit].pairCount)
+            {
+                printf("Would you like to add another translation\n");
+                willAddAnotherTranslation = isOperationConfirmed();
+            }
+        } while (willAddAnotherTranslation && entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY);
         sortEntry(&entries[indexOfEntryToEdit]);
     }
-    else
+    
+    if (entriesWithKeyCount > 0 && entries[indexOfEntryToEdit].pairCount == MAX_PAIRS_PER_ENTRY)
+    {
+        printf(YELLOWFORMATSTRING, "The maximum number of translations has been reached\n");
+        printf("Press any key to continue\n");
+        getch();
+    }
+    else if (entriesWithKeyCount == 0)
     {
         printf(REDFORMATSTRING, "The word and corresponding language are not found in any entry\n");
         printf("You must first initialize a new entry\n");

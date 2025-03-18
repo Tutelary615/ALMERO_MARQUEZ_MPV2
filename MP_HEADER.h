@@ -18,4 +18,3 @@ typedef struct {
 	LTPairType pairs[MAX_PAIRS_PER_ENTRY];
 	int pairCount;
 } entryType;
-//test
