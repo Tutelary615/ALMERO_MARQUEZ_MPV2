@@ -476,7 +476,15 @@ addTranslation(entryType entries[], int entryCount)
         indexOfEntryToEdit =  indexesOfEntriesWithKey[getAndValidateMenuInput(1, entriesWithKeyCount) - 1];
         system("cls");
     }
-    
+
+    else if (entriesWithKeyCount == 0)
+    {
+        printf(REDFORMATSTRING, "The word and corresponding language are not found in any entry\n");
+        printf("You must first initialize a new entry\n");
+        printf("Press any key to continue\n");
+        getch();
+    }
+
     if (entriesWithKeyCount > 0 && entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY)
     {   
         do
@@ -486,12 +494,13 @@ addTranslation(entryType entries[], int entryCount)
             printf("Enter language and translation to be added\n");
             addLTPair(&entries[indexOfEntryToEdit]);
             
-            if (entries[indexOfEntryToEdit].pairCount)
+            if (entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY)
             {
                 printf("Would you like to add another translation\n");
                 willAddAnotherTranslation = isOperationConfirmed();
             }
         } while (willAddAnotherTranslation && entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY);
+        
         sortEntry(&entries[indexOfEntryToEdit]);
     }
     
@@ -501,12 +510,6 @@ addTranslation(entryType entries[], int entryCount)
         printf("Press any key to continue\n");
         getch();
     }
-    else if (entriesWithKeyCount == 0)
-    {
-        printf(REDFORMATSTRING, "The word and corresponding language are not found in any entry\n");
-        printf("You must first initialize a new entry\n");
-        printf("Press any key to continue\n");
-        getch();
-    }
+    
 	   
 }
