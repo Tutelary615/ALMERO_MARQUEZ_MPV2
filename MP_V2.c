@@ -418,6 +418,7 @@ addEntry(entryType entries[], int* entryCount)
             if (willAddTranslation)
             {
                 addLTPair(&entries[*entryCount - 1]);
+                sortEntry(&entries[*entryCount - 1]);
             }
         
         } while (willAddTranslation);
@@ -493,7 +494,8 @@ addTranslation(entryType entries[], int entryCount)
             printf("\n");
             printf("Enter language and translation to be added\n");
             addLTPair(&entries[indexOfEntryToEdit]);
-            
+            sortEntry(&entries[indexOfEntryToEdit]);
+
             if (entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY)
             {
                 printf("Would you like to add another translation\n");
@@ -501,7 +503,7 @@ addTranslation(entryType entries[], int entryCount)
             }
         } while (willAddAnotherTranslation && entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY);
         
-        sortEntry(&entries[indexOfEntryToEdit]);
+        
     }
     
     if (entriesWithKeyCount > 0 && entries[indexOfEntryToEdit].pairCount == MAX_PAIRS_PER_ENTRY)
