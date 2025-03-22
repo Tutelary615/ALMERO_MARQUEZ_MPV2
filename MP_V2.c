@@ -204,7 +204,7 @@ formatTranslation(string20 translation)
 }
 
 void 
-sortEntry(entryType* entry)
+sortIntraEntry(entryType* entry)
 {
     int i; 
     int j;
@@ -222,6 +222,78 @@ sortEntry(entryType* entry)
             }
         }
     }
+}
+
+void
+sortInterEntry(entryType entries[], int entryCount)
+{
+	entryType engEntries[MAX_ENTRIES];
+	int num_engEntries = 0;
+	int engIndices[MAX_ENTRIES];
+	entryType noEngEntries[MAX_ENTRIES];
+	int num_noEngEntries = 0;
+	int found = 0;
+	entryType tempE;
+	int tempI;
+	int min;
+	int i, j;
+	
+	for (i = 0; i < entryCount; i++)
+	{
+		found = 0;
+		for (j = 0; j < entries[i].pairCount && !found; j++)
+		{
+			if (!strcmp(entries[i].pairs[j].language, "English"))
+			{
+				engEntries[num_engEntries] = entries[i];
+				engIndices[num_engEntries] = j;
+				num_engEntries++;
+				found = 1;
+			}
+		}
+		
+		if (!found)
+		{
+			noEngEntries[num_noEngEntries] = entries[i];
+			num_noEngEntries++;
+		}
+	}
+	
+	for (i = 0; i < num_engEntries - 1; i++)
+	{
+		min = i;
+		for (j = i+1; j < num_engEntries; j++)
+		{
+			if (strcmp(engEntries[min].pairs[engIndices[min]].translation,
+					   engEntries[j].pairs[engIndices[j]].translation) > 0)
+			{
+				min = j;
+			}
+			
+			if (min != i)
+			{
+				tempE = engEntries[i];
+				engEntries[i] = engEntries[min];
+				engEntries[min] = tempE;
+				
+				tempI = engIndices[i];
+				engIndices[i] = engIndices[min];
+				engIndices[min] = tempI;
+			}
+		}
+	}
+	
+	for (i = 0; i < num_engEntries; i++)
+	{
+		entries[i] = engEntries[i];
+	}
+	
+	j = 0;
+	for (i = num_engEntries; i < entryCount; i++)
+	{
+		entries[i] = noEngEntries[j];
+		j++;
+	}
 }
 
 int 
@@ -361,7 +433,6 @@ initEntry(entryType entries[], int* entryCount)
 	printf("Would you like to add the entered translation to a new entry?\n");
 	if (isOperationConfirmed())
 	{
-        entries[*entryCount].pairCount = 0;
 		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].language, tempLang);
 		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].translation, tempTrans);
 		entries[*entryCount].pairCount = 1;
@@ -369,7 +440,7 @@ initEntry(entryType entries[], int* entryCount)
         printf("\n");
         printf(GREENFORMATSTRING, "New entry successfully created\n");
         isNewEntryInitialized = true;
-	}	
+	}
 	else
 	{
         printf("\n");
@@ -409,7 +480,7 @@ addLTPair(entryType* entry)
             strcpy(entry->pairs[entry->pairCount].language, langToAdd);
             strcpy(entry->pairs[entry->pairCount].translation, transToAdd);
             entry->pairCount++;
-            sortEntry(entry);
+            sortIntraEntry(entry);
             printf(GREENFORMATSTRING, "Translation successfully added\n");
         }
         else
@@ -430,6 +501,7 @@ addEntry(entryType entries[], int* entryCount)
     bool isNewEntryInitialized;
     bool willAddTranslation;
 
+    entries[*entryCount].pairCount = 0;
     isNewEntryInitialized = initEntry(entries, entryCount);
 
     if (isNewEntryInitialized)
@@ -442,7 +514,7 @@ addEntry(entryType entries[], int* entryCount)
             if (willAddTranslation)
             {
                 addLTPair(&entries[*entryCount - 1]);
-                sortEntry(&entries[*entryCount - 1]);
+                sortIntraEntry(&entries[*entryCount - 1]);
             }
         
         } while (willAddTranslation);
@@ -472,7 +544,6 @@ addTranslation(entryType entries[], int entryCount)
     int entriesWithKeyCount = 0;
     int indexesOfEntriesWithKey[MAX_ENTRIES];
     int indexOfEntryToEdit;
-    int i;
     bool willAddAnotherTranslation;
 
     printf("Enter the word and language you would like to translate\n");
@@ -516,7 +587,7 @@ addTranslation(entryType entries[], int entryCount)
             printf("\n");
             printf("Enter language and translation to be added\n");
             addLTPair(&entries[indexOfEntryToEdit]);
-            sortEntry(&entries[indexOfEntryToEdit]);
+            sortIntraEntry(&entries[indexOfEntryToEdit]);
 
             if (entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY)
             {
