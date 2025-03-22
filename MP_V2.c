@@ -689,3 +689,144 @@ deleteTranslation(entryType entries[], int entryCount)
     }
 }
 
+
+bool
+isThereProhibitedCharInFilename(string30 filename)
+{
+    bool isThereProhibitedCharacter = false;
+    char prohibitedCharacters[9] = {'<', '>', ':', '"', '/', '\\', '|', '?', '*'};
+    int i;
+    int j;
+
+    for (i = 0; i < strlen(filename) && !isThereProhibitedCharacter; i++)
+    {
+        for (j = 0; j < 9 && !isThereProhibitedCharacter; j++)
+        {
+            if (filename[i] == prohibitedCharacters[j])
+            {
+                isThereProhibitedCharacter = true;
+            }
+        }
+    }
+    return isThereProhibitedCharacter;
+}
+
+void 
+getEntry(FILE* importFile, entryType* tempEntry)
+{
+    string50 readLine;
+    char* readResult;
+    int i = 0;
+    
+    do
+    {
+        initString(readLine);
+        readResult = fgets(readLine, 50, importFile);
+        fflush(stdin);
+        if (strcmp(readLine, "\n") != 0 && readResult != NULL)
+        {
+            strcpy(tempEntry->pairs[i].language, strtok(readLine, ": "));
+            strcpy(tempEntry->pairs[i].translation, strtok(readLine, ": \n"));
+            i++;
+            tempEntry->pairCount++;
+        }
+    } while (strcmp(readLine, "\n") != 0 && readResult != NULL);
+    
+}
+
+
+bool
+isImportFilenameValid(string30 filename, char characterAfterFilename, FILE* importFile)
+{
+    bool isValid = true;
+    if (strlen(filename) == 0)
+    {
+        printf(REDFORMATSTRING, "No filename was entered. Try again\n");
+        isValid = false;
+    }
+    else if (characterAfterFilename != '\n')
+    {
+        printf(REDFORMATSTRING, "File name entered contains more than 30 characters. Try again\n");
+        isValid = false;
+    }
+    else if ((isThereProhibitedCharacterInFilename(filename)) || (strcmp(filename, ".txt") == 0))
+    {
+        printf(REDFORMATSTRING, "File name entered is not valid. Try again\n");
+        isValid = false;
+    }
+    else if (strcmp((filename + strlen(filename) - 4), ".txt") != 0)
+    {
+        printf(REDFORMATSTRING, "\".txt\" extension was not included in input. Try again\n");
+        isValid = false;
+    }
+    else if (importFile == NULL)
+    {
+        printf(REDFORMATSTRING, "File not found. Try again\n");
+        isValid = false;   
+    }
+    
+    return isValid;
+}
+
+void
+importData(entryType entries[], int* entryCount)
+{
+    FILE* importFile;
+    string30 filename;
+    entryType* temp;
+    char characterAfterFilename;
+
+    printf("provide the file name of the text file (.txt) to import from\n");
+    printf(" - include the \".txt\" file extension in input\n");
+    printf(" - file name should not exceed 30 characters (including file extesion)\n");
+    printf("\n");
+   
+    do
+    {
+        initString(filename);
+        characterAfterFilename = '\n';
+        printf("Enter file name: ");
+        getFilename(filename, &characterAfterFilename);
+        formatFilename(filename);
+        importFile = fopen(filename, "r");
+    } while (!isImportFilenameValid(filename, characterAfterFilename, importFile));
+    printf("\n");
+    
+    printf("Would you like to proceed with import\n");
+    if (isOperationConfirmed())
+    {
+        printf("\n");
+        do
+        {   
+            temp = (entryType*)malloc(sizeof(entryType));
+            
+            getEntry(importFile, temp);
+            printEntry(*temp, stdout);
+            printf("\n");
+            
+            printf("Would you like to import this entry\n");
+            
+            if(isOperationConfirmed())
+            {
+                entries[*entryCount] = *temp;
+                (*entryCount)++;
+            }
+            free(temp);
+        } while (!feof(importFile) && *entryCount < MAX_ENTRIES);
+
+        if (*entryCount != MAX_ENTRIES)
+        {
+            printf(YELLOWFORMATSTRING, "The maximum of 150 entries has been reached\n");
+        }
+        
+    }
+    else 
+    {
+        printf(YELLOWFORMATSTRING, "import cancelled\n");
+        printf("Press any key to return to manage data menu\n");
+        getch();
+        fflush(stdin);
+    }
+    fclose(importFile);
+    
+}
