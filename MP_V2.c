@@ -568,7 +568,6 @@ addTranslation(entryType entries[], int entryCount)
         printf("Choose an entry where you would like to add a translation?\n");
         printf("Enter the number corresponding to the entry (1 - %d)\n", entriesWithKeyCount);
         indexOfEntryToEdit =  indexesOfEntriesWithKey[getAndValidateMenuInput(1, entriesWithKeyCount) - 1];
-        system("cls");
     }
 
     else if (entriesWithKeyCount == 0)
@@ -640,10 +639,10 @@ deleteTranslation(entryType entries[], int entryCount)
     getInteger(&indexOfEntryToEdit);
     indexOfEntryToEdit -= 1;
 
-    if (indexOfEntryToEdit >= entryCount)
+    if (indexOfEntryToEdit >= entryCount || indexOfEntryToEdit < 0)
     {
         printf(REDFORMATSTRING, "The choice entered is invalid.\n");
-        printf("Press any key to return to return to \" manage data\" menu\n");
+        printf("Press any key to return to return to \"manage data\" menu\n");
         getch();
         fflush(stdin);
     }
@@ -652,7 +651,6 @@ deleteTranslation(entryType entries[], int entryCount)
     {
         do
         {
-            system("cls");
             printEntryAsMenu(entries[indexOfEntryToEdit]);
             printf("\n");
             printf("Select a translation to delete: \n");
@@ -677,7 +675,7 @@ deleteTranslation(entryType entries[], int entryCount)
             }
             else
             {
-                printf(REDFORMATSTRING, "The choice entred is invalid\n");
+                printf(REDFORMATSTRING, "The choice entered is invalid\n");
             }
 
             printf("Would you like to delete another pair\n");
@@ -689,3 +687,51 @@ deleteTranslation(entryType entries[], int entryCount)
     }
 }
 
+void
+deleteEntry(entryType entries[], int *entryCount)
+{
+	int delIndex;
+	int i;
+	
+	printf("Select an entry to delete.\n");
+	printf("\n");
+	
+	printAllEntriesAsMenu(entries, *entryCount);
+	printf("\n");
+    printf("Enter the number corresponding to your choice: ");
+    getInteger(&delIndex);
+    delIndex--;
+    
+    if (delIndex >= *entryCount || delIndex < 0)
+    {
+        printf(REDFORMATSTRING, "The choice entered is invalid.\n");
+        printf("Press any key to return to return to \"manage data\" menu\n");
+        getch();
+        fflush(stdin);
+    }
+    
+    else
+    {
+    	printf("Would you like to delete:\n");
+    	printEntry(entries[delIndex], stdout);
+    	
+    	if (isOperationConfirmed())
+    	{
+    		for (i = delIndex; i < *entryCount; i++)
+	    	{
+	    		entries[i] = entries[i+1];
+	    		(*entryCount)--;
+			}
+			
+    		printf(GREENFORMATSTRING, "Entry successfully deleted\n");
+		}
+		
+		else
+		{
+			printf(YELLOWFORMATSTRING, "Deletion cancelled\n");
+			printf("Press any key to return to return to \"manage data\" menu\n");
+	        getch();
+	        fflush(stdin);
+		}
+	}
+}
