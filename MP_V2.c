@@ -297,6 +297,29 @@ printEntryWithHighlight(entryType entry, string20 langKey, string20 transKey)
     }
 }
 
+void 
+printAllEntriesAsMenu(entryType entries[], int entryCount)
+{
+    int i;
+    for (i = 0; i < entryCount; i++)
+    {
+        printEntry(entries[i], stdout);
+        printf("Pair count = %d\n", entries[i].pairCount);
+        printf("\033[0;33m - %d\033[0m", i + 1);
+    }
+}
+
+void
+printEntryAsMenu(entryType entry)
+{
+    int i;
+
+    for (i = 0; i < entry.pairCount; i++)
+    {
+        printf("%d - %s: %s\n", (i + 1), entry.pairs[i].language, entry.pairs[i].translation);
+    }
+}
+
 bool
 initEntry(entryType entries[], int* entryCount)
 {
@@ -338,6 +361,7 @@ initEntry(entryType entries[], int* entryCount)
 	printf("Would you like to add the entered translation to a new entry?\n");
 	if (isOperationConfirmed())
 	{
+        entries[*entryCount].pairCount = 0;
 		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].language, tempLang);
 		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].translation, tempTrans);
 		entries[*entryCount].pairCount = 1;
@@ -424,8 +448,6 @@ addEntry(entryType entries[], int* entryCount)
         } while (willAddTranslation);
     }
 }
-
-
 
 void 
 printEntriesAsMenuWithHighlight(entryType entries[], string20 langKey, string20 transKey, int indexesToPrint[], int entriesToPrintCount)
@@ -515,3 +537,84 @@ addTranslation(entryType entries[], int entryCount)
     
 	   
 }
+
+void 
+removeLTPair(entryType* entry, int indexOfPairToRemove)
+{
+    int i;
+
+    for (i = indexOfPairToRemove; i < (entry->pairCount) - 1; i++)
+    {
+        entry->pairs[i] = entry->pairs[i + 1];
+    }
+    initString(entry->pairs[entry->pairCount - 1].language);
+    initString(entry->pairs[entry->pairCount - 1].translation);
+    (entry->pairCount)--;
+}
+
+void 
+deleteTranslation(entryType entries[], int entryCount)
+{
+    int indexOfEntryToEdit;
+    int indexOfPairToDelete;
+    bool willDeleteAnother;
+    bool isThereValidInteger;
+    printf("Select an entry to delete from.\n");
+    printf("\n");
+
+    printAllEntriesAsMenu(entries, entryCount); 
+    
+    printf("\n");
+    printf("Enter the number corresponding to your choice: ");
+    getInteger(&indexOfEntryToEdit);
+    indexOfEntryToEdit -= 1;
+
+    if (indexOfEntryToEdit >= entryCount)
+    {
+        printf(REDFORMATSTRING, "The choice entered is invalid.\n");
+        printf("Press any key to return to return to \" manage data\" menu\n");
+        getch();
+        fflush(stdin);
+    }
+
+    else
+    {
+        do
+        {
+            system("cls");
+            printEntryAsMenu(entries[indexOfEntryToEdit]);
+            printf("\n");
+            printf("Select a translation to delete: \n");
+            isThereValidInteger = getInteger(&indexOfPairToDelete);
+
+            if (isMenuInputValid(isThereValidInteger, 1, entries[indexOfEntryToEdit].pairCount, indexOfPairToDelete))
+            {
+                indexOfPairToDelete -= 1;
+                printf("Would you like to delete:\n");
+                printf("\t%s: %s", entries[indexOfEntryToEdit].pairs[indexOfPairToDelete].language, 
+                                   entries[indexOfEntryToEdit].pairs[indexOfPairToDelete].translation);
+                printf("\n");
+                if (isOperationConfirmed())
+                {
+                    removeLTPair(&entries[indexOfEntryToEdit], indexOfPairToDelete);
+                    printf(GREENFORMATSTRING, "Translation successfully deleted\n");
+                }
+                else
+                {
+                    printf(YELLOWFORMATSTRING, "Deletion cancelled\n");
+                }
+            }
+            else
+            {
+                printf(REDFORMATSTRING, "The choice entred is invalid\n");
+            }
+
+            printf("Would you like to delete another pair\n");
+            willDeleteAnother = isOperationConfirmed();
+
+            
+        } while (willDeleteAnother);
+        
+    }
+}
+
