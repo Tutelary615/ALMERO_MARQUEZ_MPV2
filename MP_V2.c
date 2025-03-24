@@ -294,7 +294,7 @@ formatTranslation(string20 translation)
 {
     int i;
     int lengthOfTranslation = strlen(translation);
-    if (lengthOfTranslation < 20);
+    if (translation[lengthOfTranslation - 1] == '\n')
     {
         translation[lengthOfTranslation - 1] = '\0';
         lengthOfTranslation--;   
@@ -845,10 +845,10 @@ deleteEntry(entryType entries[], int *entryCount)
 		else
 		{
 			printf(YELLOWFORMATSTRING, "Deletion cancelled\n");
-			printf("Press any key to return to return to \"manage data\" menu\n");
-	        getch();
-	        fflush(stdin);
 		}
+        printf("Press any key to return to return to \"manage data\" menu\n");
+	    getch();
+	    fflush(stdin);
 	}
 }
 
@@ -871,6 +871,53 @@ printEntryWithHighlightWord(entryType entry, string20 keyWord)
 }
 
 void 
+displayAllEntries(entryType entries[], int entryCount)
+{
+    int indexOfEntryBeingDisplayed = 0;
+    char choice;
+   
+        do
+        {
+           printEntry(entries[indexOfEntryBeingDisplayed], stdout);
+            printf("(%d/%d)\n", (indexOfEntryBeingDisplayed + 1), entryCount);
+            printf("\n");
+
+            if (entryCount == 1)
+            {
+                printf("Press 'e' to exit\n");
+                choice = getAndValidateCharInput("e");   
+            }
+
+            else if (indexOfEntryBeingDisplayed == 0)
+            {
+                printf("Press 'n' to view next entry or 'e' to exit\n");
+                choice = getAndValidateCharInput("ne");
+            }
+            else if (indexOfEntryBeingDisplayed == entryCount - 1)
+            {
+                printf("Press 'p' to view previous entry or 'e' to exit\n");
+                choice = getAndValidateCharInput("pe");
+            }
+            else
+            {
+                printf("Press 'p' to view previous entry, 'n' to view next entry, or 'e' to exit\n");
+                choice = getAndValidateCharInput("pne");
+            }
+
+            if (choice == 'p')
+            {
+                indexOfEntryBeingDisplayed--;
+            }
+            else if (choice == 'n')
+            {
+                indexOfEntryBeingDisplayed++;
+            }
+
+        } while (choice != 'e');
+
+}
+
+void 
 displaySpecificEntries(entryType entries[], int indexesOfEntriesToDisplay[], int numberOfEntriesToDisplay, string20 langKey, string20 wordKey)
 {
     int indexOfEntryBeingDisplayed = 0;
@@ -889,7 +936,13 @@ displaySpecificEntries(entryType entries[], int indexesOfEntriesToDisplay[], int
             printf("(%d/%d)\n", (indexOfEntryBeingDisplayed + 1), numberOfEntriesToDisplay);
             printf("\n");
 
-            if (indexOfEntryBeingDisplayed == 0)
+            if (numberOfEntriesToDisplay == 1)
+            {
+                printf("Press 'e' to exit\n");
+                choice = getAndValidateCharInput("e");   
+            }
+
+            else if (indexOfEntryBeingDisplayed == 0)
             {
                 printf("Press 'n' to view next entry or 'e' to exit\n");
                 choice = getAndValidateCharInput("ne");
@@ -941,9 +994,7 @@ searchByWord(entryType entries[], int entryCount)
     int* entriesWithKeyWordIndexes = (int*)malloc(0);
     int entriesWithKeyWordCount = 0;
     int i;
-    char choice;
     char charAfterKeyWord;
-    int indexBeingDisplayed;
     do
     {
         charAfterKeyWord = '\n';
@@ -978,7 +1029,7 @@ searchByWord(entryType entries[], int entryCount)
 }
 
 void
-searchByLanguage(entryType entries[], int entryCount)
+searchByTranslation(entryType entries[], int entryCount)
 {
     string20 langKey;
     string20 wordKey;
@@ -1300,4 +1351,44 @@ importData(entryType entries[], int* entryCount)
         printf(YELLOWFORMATSTRING, "Export cancelled\n");
     }
     
+}
+
+void 
+manageData(entryType entries[], int* entryCount)
+{
+    int choice;
+    do
+    {
+        choice = manageDataMenu(*entryCount);
+
+        switch(choice)
+        {
+            case 1: addEntry(entries, entryCount);
+                    break;
+            
+            case 2: importData(entries, entryCount);
+                    break;
+            
+            case 3: addTranslation(entries, *entryCount);
+                    break;
+            
+            case 4: deleteEntry(entries, entryCount);
+                    break;
+            
+            case 5: deleteTranslation(entries, *entryCount);
+                    break;
+
+            case 6: displayAllEntries(entries, *entryCount);
+                    break;
+
+            case 7: searchByWord(entries, *entryCount);
+                    break;
+            
+            case 8: searchByTranslation(entries, *entryCount);
+                    break;
+            
+            case 9: exportData(entries, *entryCount);
+                    break;
+        }
+    } while (choice != 9);
 }
