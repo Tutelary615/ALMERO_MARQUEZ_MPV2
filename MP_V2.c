@@ -184,7 +184,7 @@ manageDataMenu(int entryCount)
 }
 
 void
-getWordOrLanguge(string20 str, char* characterAfterInput)
+getWordOrLanguage(string20 str, char* characterAfterInput)
 {
 	fgets(str, 21, stdin);
     if (strlen(str) == 20)
@@ -515,9 +515,9 @@ initEntry(entryType entries[], int* entryCount)
 		initString(language);
 		
         printf("Enter word: ");
-        getWordOrLanguge(word, &charAfterWord);
+        getWordOrLanguage(word, &charAfterWord);
         printf("Enter language: ");
-        getWordOrLanguge(language, &charAfterLang);
+        getWordOrLanguage(language, &charAfterLang);
         
         formatLanguage(language);
         formatTranslation(word);
@@ -575,9 +575,9 @@ addLTPair(entryType* entry)
         charAfterLang = '\n';
         charAfterTrans = '\n';
         printf("Enter translation: ");
-        getWordOrLanguge(transToAdd, &charAfterTrans);
+        getWordOrLanguage(transToAdd, &charAfterTrans);
         printf("Enter language: ");
-        getWordOrLanguge(langToAdd, &charAfterLang);
+        getWordOrLanguage(langToAdd, &charAfterLang);
         formatLanguage(langToAdd);
         formatTranslation(transToAdd);
 
@@ -666,9 +666,9 @@ addTranslation(entryType entries[], int entryCount)
 		initString(transKey);
         
         printf("Enter word to translate: ");
-        getWordOrLanguge(transKey, &charAfterTrans);
+        getWordOrLanguage(transKey, &charAfterTrans);
         printf("Enter source language: ");
-        getWordOrLanguge(langKey, &charAfterTrans);
+        getWordOrLanguage(langKey, &charAfterTrans);
         formatLanguage(langKey);
 		formatTranslation(transKey);
 	} while (!isLTPairValid(langKey, transKey, charAfterLang, charAfterTrans));
@@ -999,7 +999,7 @@ searchByWord(entryType entries[], int entryCount)
     {
         charAfterKeyWord = '\n';
         printf("Enter word to search: ");
-        getWordOrLanguge(keyWord, &charAfterKeyWord);
+        getWordOrLanguage(keyWord, &charAfterKeyWord);
         formatTranslation(keyWord);
     } while (!isWordValid(keyWord, charAfterKeyWord));
     
@@ -1047,9 +1047,9 @@ searchByTranslation(entryType entries[], int entryCount)
         charAfterWordKey = '\n';
 
         printf("Enter language: ");
-        getWordOrLanguge(langKey, &charAfterLangKey);
+        getWordOrLanguage(langKey, &charAfterLangKey);
         printf("Enter word: ");
-        getWordOrLanguge(wordKey, &charAfterWordKey);
+        getWordOrLanguage(wordKey, &charAfterWordKey);
         formatLanguage(langKey);
         formatTranslation(wordKey);
     } while (!isLTPairValid(langKey, wordKey, charAfterLangKey, charAfterWordKey));
@@ -1299,8 +1299,8 @@ importData(entryType entries[], int* entryCount)
      
  }
 
- void 
- exportData(entryType entries[], int entryCount)
+void 
+exportData(entryType entries[], int entryCount)
 {
     FILE* exportFile;
     string30 filename;
@@ -1392,3 +1392,63 @@ manageData(entryType entries[], int* entryCount)
         }
     } while (choice != 9);
 }
+
+void
+removePunctuation(string150 textInput)
+{
+    int len = strlen(textInput);
+    int i, j;
+
+    for (i = 0; i < len; i++)
+        if (ispunct(textInput[i]))
+        {
+            for (j = i; j < len; j++)
+            {
+                if (j != len - 1)
+                    textInput[j] = textInput[j + 1];
+                
+                else
+                    textInput[j] = '\0';
+            }
+
+            i--;
+        }         
+}
+
+void
+tokenize(string150 textInput, char* tokens[], int* n_words)
+{
+    int i = 0;
+    char* token;
+
+    removePunctuation(textInput);
+
+    token = strtok(textInput, " ");
+    
+    while (token != NULL)
+    {
+        tokens[i] = token;
+        (*n_words)++;
+        token = strtok(NULL, " ");
+        i++;
+    }
+}
+
+void
+detokenize(string150 result, char* tokens[], int n_words)
+{
+    int i;
+
+    result[0] = '\0';
+
+    for (i = 0; i < n_words; i++)
+    {
+        strcat(result, tokens[i]);
+
+        if (i != n_words - 1)
+            strcat(result, " ");
+    }
+}
+
+void
+translateInput(entryType entries[], int entryCount);
