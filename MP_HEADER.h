@@ -8,6 +8,7 @@
 typedef char string20[21];
 typedef char string30[31];
 typedef char string50[51];
+typedef char string150[151];
 
 typedef struct {
     string20 language;
