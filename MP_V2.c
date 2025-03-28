@@ -183,8 +183,23 @@ manageDataMenu(int entryCount)
     return choice;
 }
 
+int 
+translateMenu()
+{
+    string30 options[3] = {"Translate Text Input", "Translate Text File", "Exit"};
+    int choice;
+    int upperBound;
+    
+    printMenu(options, 3);
+    upperBound = 3;
+    
+    printf("Select and option from the menu above\n");
+    choice = getAndValidateMenuInput(1, upperBound);
+    return choice;
+}
+
 void
-getWordOrLanguge(string20 str, char* characterAfterInput)
+getWordOrLanguage(string20 str, char* characterAfterInput)
 {
 	fgets(str, 21, stdin);
     if (strlen(str) == 20)
@@ -515,9 +530,9 @@ initEntry(entryType entries[], int* entryCount)
 		initString(language);
 		
         printf("Enter word: ");
-        getWordOrLanguge(word, &charAfterWord);
+        getWordOrLanguage(word, &charAfterWord);
         printf("Enter language: ");
-        getWordOrLanguge(language, &charAfterLang);
+        getWordOrLanguage(language, &charAfterLang);
         
         formatLanguage(language);
         formatTranslation(word);
@@ -575,9 +590,9 @@ addLTPair(entryType* entry)
         charAfterLang = '\n';
         charAfterTrans = '\n';
         printf("Enter translation: ");
-        getWordOrLanguge(transToAdd, &charAfterTrans);
+        getWordOrLanguage(transToAdd, &charAfterTrans);
         printf("Enter language: ");
-        getWordOrLanguge(langToAdd, &charAfterLang);
+        getWordOrLanguage(langToAdd, &charAfterLang);
         formatLanguage(langToAdd);
         formatTranslation(transToAdd);
 
@@ -671,9 +686,9 @@ addTranslation(entryType entries[], int entryCount)
 		initString(transKey);
         
         printf("Enter word to translate: ");
-        getWordOrLanguge(transKey, &charAfterTrans);
+        getWordOrLanguage(transKey, &charAfterTrans);
         printf("Enter source language: ");
-        getWordOrLanguge(langKey, &charAfterTrans);
+        getWordOrLanguage(langKey, &charAfterTrans);
         formatLanguage(langKey);
 		formatTranslation(transKey);
 	} while (!isLTPairValid(langKey, transKey, charAfterLang, charAfterTrans));
@@ -1005,7 +1020,7 @@ searchByWord(entryType entries[], int entryCount)
     {
         charAfterKeyWord = '\n';
         printf("Enter word to search: ");
-        getWordOrLanguge(keyWord, &charAfterKeyWord);
+        getWordOrLanguage(keyWord, &charAfterKeyWord);
         formatTranslation(keyWord);
     } while (!isWordValid(keyWord, charAfterKeyWord));
     
@@ -1053,9 +1068,9 @@ searchByTranslation(entryType entries[], int entryCount)
         charAfterWordKey = '\n';
 
         printf("Enter language: ");
-        getWordOrLanguge(langKey, &charAfterLangKey);
+        getWordOrLanguage(langKey, &charAfterLangKey);
         printf("Enter word: ");
-        getWordOrLanguge(wordKey, &charAfterWordKey);
+        getWordOrLanguage(wordKey, &charAfterWordKey);
         formatLanguage(langKey);
         formatTranslation(wordKey);
     } while (!isLTPairValid(langKey, wordKey, charAfterLangKey, charAfterWordKey));
@@ -1085,7 +1100,7 @@ searchByTranslation(entryType entries[], int entryCount)
 }
 
 bool
-getEntry(FILE* importFile, entryType* tempEntry)
+readEntry(FILE* importFile, entryType* tempEntry)
  {
      string50 readLine;
      char* readResult;
@@ -1244,9 +1259,9 @@ importData(entryType entries[], int* entryCount)
      bool wasEntryRead;
      bool willImportEntry;
  
-     printf("provide the file name of the text file (.txt) to import from\n");
+     printf("Provide the file name of the text file (.txt) to import from\n");
      printf(" - include the \".txt\" file extension in input\n");
-     printf(" - file name should not exceed 30 characters (including file extesion)\n");
+     printf(" - file name should not exceed 30 characters (including file extension)\n");
      printf("\n");
     
      do
@@ -1268,7 +1283,7 @@ importData(entryType entries[], int* entryCount)
              temp = (entryType*)malloc(sizeof(entryType));
              willImportEntry = false;
              
-             wasEntryRead = getEntry(importFile, temp);
+             wasEntryRead = readEntry(importFile, temp);
              if (wasEntryRead)
              {
                 printEntry(*temp, stdout);
@@ -1306,8 +1321,8 @@ importData(entryType entries[], int* entryCount)
      
  }
 
- void 
- exportData(entryType entries[], int entryCount)
+void 
+exportData(entryType entries[], int entryCount)
 {
     FILE* exportFile;
     string30 filename;
@@ -1400,4 +1415,288 @@ manageData()
                     break;
         }
     } while (choice != 10);
+}
+
+void
+removePunctuation(string150 textInput)
+{
+    int len = strlen(textInput);
+    int i, j;
+
+    for (i = 0; i < len; i++)
+        if (ispunct(textInput[i]))
+        {
+            for (j = i; j < len; j++)
+            {
+                if (j != len - 1)
+                    textInput[j] = textInput[j + 1];
+                
+                else
+                    textInput[j] = '\0';
+            }
+
+            i--;
+        }
+}
+
+void
+tokenize(string150 textInput, string50 tokens[], int* n_words)
+{
+    int i = 0;
+    char* token;
+    string50 tempTokens[50] = {};
+    
+    removePunctuation(textInput);
+
+    token = strtok(textInput, " ");
+
+    while (token != NULL)
+    {
+        strcpy(tempTokens[i], token);
+        (*n_words)++;
+        token = strtok(NULL, " ");
+        i++;
+    }
+    
+    memcpy(tokens, tempTokens, sizeof(tempTokens));
+}
+
+void
+detokenize(string150 result, string50 tokens[], int n_words)
+{
+    int i;
+
+    strcpy(result, "");
+
+    for (i = 0; i < n_words; i++)
+    {
+        strcat(result, tokens[i]);
+
+        if (i != n_words - 1)
+            strcat(result, " ");
+    }
+}
+
+void
+formatText(string150 text)
+{
+    int i;
+    int lengthOfText = strlen(text);
+    if (text[lengthOfText - 1] == '\n')
+    {
+        text[lengthOfText - 1] = '\0';
+        lengthOfText--;
+    }
+    
+    for (i = 0; i < lengthOfText; i++)
+    {
+        text[i] = tolower(text[i]);
+    }
+}
+
+bool
+isTextValid(string150 text, char charAfterText)
+{
+    bool isValid = true;
+    if (charAfterText != '\n')
+    {
+        printf(REDFORMATSTRING, "Text exceeds 150 characters.\n");
+        isValid = false;
+    }
+    else if (strlen(text) == 0)
+    {
+        printf(REDFORMATSTRING, "No text entered.\n");
+        isValid = false;
+    }
+    return isValid;
+}
+
+void
+getText(string150 text, char* characterAfterInput)
+{
+	fgets(text, 151, stdin);
+    if (strlen(text) == 150)
+    {
+        *characterAfterInput = getc(stdin);
+    }
+    fflush(stdin);
+}
+
+int
+findKeyEntry(entryType sourceEntries[], int n_sourceEntries, LTPairType keyPair)
+{
+	int i, j;
+	int index = -1;
+	int found = 0;
+	
+	for (i = 0; i < n_sourceEntries && !found; i++)
+		for (j = 0; j < sourceEntries[i].pairCount && !found; j++)
+			if (!strcmp(keyPair.language, sourceEntries[i].pairs[j].language) &&
+				!strcmp(keyPair.translation, sourceEntries[i].pairs[j].translation))
+				{
+					index = i;
+					found = 1;	
+				}
+
+	return index;
+}
+
+int
+findTransInEntry(entryType keyEntry, string20 destLang)
+{
+	int i;
+	int index = -1;
+	int found = 0;
+	
+	for (i = 0; i < keyEntry.pairCount && !found; i++)
+		if (!strcmp(keyEntry.pairs[i].language, destLang))
+		{
+			index = i;
+			found = 1;
+		}
+	
+	return index;
+}
+
+void
+translateInput(entryType sourceEntries[], int n_sourceEntries)
+{
+	string20 sourceLang;
+	string150 input;
+	string150 original;
+	string20 destLang;
+	LTPairType keyPair;
+	char charAfterLang;
+	char charAfterText;
+	string50 tokens[50];
+	int n_words;
+	int keyEntryIndex;
+	entryType keyEntry;
+	int transPairIndex;
+	string150 result;
+	int i;
+	
+	do
+	{
+		printf("\n");
+		
+		do 
+	    {
+	        initString(sourceLang);
+	        charAfterLang = '\n';
+	        printf("Enter language of source text: ");
+	        getWordOrLanguage(sourceLang, &charAfterLang);
+	        formatLanguage(sourceLang);
+	    } while (!isLanguageValid(sourceLang, charAfterLang));
+	    
+	    strcpy(keyPair.language, sourceLang);
+	    
+	    do
+	    {
+	    	initString(input);
+	    	charAfterText = '\n';
+	        printf("Enter text to translate: ");
+			getText(input, &charAfterText);
+			formatText(input);
+		} while (!isTextValid(input, charAfterText));
+	    
+	    strcpy(original, input);
+	    
+	    do
+	    {
+	        initString(destLang);
+	        charAfterLang = '\n';
+	        printf("Enter language to translate to: ");
+	        getWordOrLanguage(destLang, &charAfterLang);
+	        formatLanguage(destLang);
+	    } while (!isLanguageValid(destLang, charAfterLang));
+	
+		n_words = 0;
+		tokenize(input, tokens, &n_words);
+	
+		for (i = 0; i < n_words; i++)
+		{
+			strcpy(keyPair.translation, tokens[i]);
+			keyEntryIndex = findKeyEntry(sourceEntries, n_sourceEntries, keyPair);
+	
+			if (keyEntryIndex != -1)
+			{
+				keyEntry = sourceEntries[keyEntryIndex];
+				transPairIndex = findTransInEntry(keyEntry, destLang);
+				
+				if (transPairIndex != -1)
+				{
+					strcpy(tokens[i], keyEntry.pairs[transPairIndex].translation);
+				}
+					
+			}
+		}
+		
+		detokenize(result, tokens, n_words);
+		
+		printf("\n");
+		printf("In %s, \"%s\" is \"%s\"\n", destLang, original, result);
+		printf("\n");
+		
+		printf("Would you like to make another translation?\n");			
+		
+	} while (isOperationConfirmed());
+	
+	printf("\n");
+}
+
+void
+translateFile(entryType sourceEntries[], int n_sourceEntries)
+{
+	
+}
+
+void 
+translate()
+{
+    int choice;
+    FILE *sourceFile;
+    entryType sourceEntries[MAX_ENTRIES];
+    int n_sourceEntries = 0;
+    string30 filename;
+    char characterAfterFilename;
+    int i = 0;
+    
+    
+	printf("Provide the file name of the text file (.txt) to obtain translation data from\n");
+	printf(" - include the \".txt\" file extension in input\n");
+	printf(" - file name should not exceed 30 characters (including file extension)\n");
+	printf("\n");
+    
+	do
+	{
+		initString(filename);
+		characterAfterFilename = '\n';
+		getFilename(filename, &characterAfterFilename);
+		formatFilename(filename);
+		sourceFile = fopen(filename, "r");
+	} while (!isImportFilenameValid(filename, characterAfterFilename, sourceFile));
+	printf("\n");
+	
+	do
+	{
+		readEntry(sourceFile, &sourceEntries[i]);
+		i++;
+		n_sourceEntries++;
+	} while (!feof(sourceFile));
+	sortInterEntry(sourceEntries, n_sourceEntries);
+    
+    do
+    {
+        choice = translateMenu();
+		
+        switch(choice)
+        {
+            case 1: translateInput(sourceEntries, n_sourceEntries);
+                    break;
+            
+            case 2: translateFile(sourceEntries, n_sourceEntries);
+                    break;
+        }
+    } while (choice != 3);
 }
