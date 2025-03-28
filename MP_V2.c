@@ -1052,7 +1052,6 @@ void
 deleteEntry(entryType entries[], int *entryCount)
 {
     int delIndex;
-	int i;
 	
 	printf("Select an entry to delete.\n");
 	printf("\n");
