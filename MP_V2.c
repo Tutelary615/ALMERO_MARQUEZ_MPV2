@@ -631,6 +631,11 @@ addEntry(entryType entries[], int* entryCount)
         
         } while (willAddTranslation);
     }
+
+    if (*entryCount > 1)
+    {
+        sortInterEntry(entries, *entryCount);
+    }
 }
 
 void 
@@ -709,8 +714,8 @@ addTranslation(entryType entries[], int entryCount)
                 willAddAnotherTranslation = isOperationConfirmed();
             }
         } while (willAddAnotherTranslation && entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY);
-        
-        
+
+        sortInterEntry(entries, entryCount);
     }
     
     if (entriesWithKeyCount > 0 && entries[indexOfEntryToEdit].pairCount == MAX_PAIRS_PER_ENTRY)
@@ -782,6 +787,7 @@ deleteTranslation(entryType entries[], int entryCount)
                 {
                     removeLTPair(&entries[indexOfEntryToEdit], indexOfPairToDelete);
                     printf(GREENFORMATSTRING, "Translation successfully deleted\n");
+                    sortInterEntry(entries, entryCount);
                 }
                 else
                 {
@@ -798,7 +804,7 @@ deleteTranslation(entryType entries[], int entryCount)
 
             
         } while (willDeleteAnother);
-        
+        sortInterEntry(entries,entryCount);   
     }
 }
 
@@ -1279,12 +1285,13 @@ importData(entryType entries[], int* entryCount)
              }
              free(temp);
          } while (!feof(importFile) && *entryCount < MAX_ENTRIES);
- 
+         sortInterEntry(entries, *entryCount);
+
          if (*entryCount == MAX_ENTRIES)
          {
              printf(YELLOWFORMATSTRING, "The maximum of 150 entries has been reached\n");
          }
-         sortInterEntry(entries, *entryCount);
+        
          
      }
      else 
@@ -1354,41 +1361,43 @@ importData(entryType entries[], int* entryCount)
 }
 
 void 
-manageData(entryType entries[], int* entryCount)
+manageData()
 {
     int choice;
+    entryType entries[MAX_ENTRIES];
+    int entryCount = 0;
     do
     {
-        choice = manageDataMenu(*entryCount);
+        choice = manageDataMenu(entryCount);
 
         switch(choice)
         {
-            case 1: addEntry(entries, entryCount);
+            case 1: addEntry(entries, &entryCount);
                     break;
             
-            case 2: importData(entries, entryCount);
+            case 2: importData(entries, &entryCount);
                     break;
             
-            case 3: addTranslation(entries, *entryCount);
+            case 3: addTranslation(entries, entryCount);
                     break;
             
-            case 4: deleteEntry(entries, entryCount);
+            case 4: deleteEntry(entries, &entryCount);
                     break;
             
-            case 5: deleteTranslation(entries, *entryCount);
+            case 5: deleteTranslation(entries, entryCount);
                     break;
 
-            case 6: displayAllEntries(entries, *entryCount);
+            case 6: displayAllEntries(entries, entryCount);
                     break;
 
-            case 7: searchByWord(entries, *entryCount);
+            case 7: searchByWord(entries, entryCount);
                     break;
             
-            case 8: searchByTranslation(entries, *entryCount);
+            case 8: searchByTranslation(entries, entryCount);
                     break;
             
-            case 9: exportData(entries, *entryCount);
+            case 9: exportData(entries, entryCount);
                     break;
         }
-    } while (choice != 9);
+    } while (choice != 10);
 }
