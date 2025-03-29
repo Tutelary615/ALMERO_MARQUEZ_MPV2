@@ -457,83 +457,112 @@ sortIntraEntry(entryType* entry)
     }
 }
 
+/* determines whether an entry contains at least one language-translation pair with English as its language
+   @return true if the passed entry contains a pair with an English translation, returns false otherwise
+*/
+bool
+hasEnglish(entryType entry)
+{
+	bool found = false;
+	int i;
+
+	for (i = 0; i < entry.pairCount && !found; i++)
+	{
+		if (strcmp(entry.pairs[i].language, "English") == 0)
+			found = true;
+	}	
+	
+	return found;
+}
+
+/* putEnglishFirst modifies the order of the pair array of a single entry such that its English translation is first
+   @param entry - address of entry being modified
+   Pre-condition: the entry contains at least one English translation
+*/
+void
+putEnglishFirst(entryType* entry)
+{
+	int i;
+	int done = 0;
+	LTPairType temp;
+	
+	for (i = 0; i < entry->pairCount && !done; i++)
+		if (strcmp(entry->pairs[i].language, "English") == 0)
+		{
+			temp = entry->pairs[i];
+			entry->pairs[i] = entry->pairs[0];
+			entry->pairs[0] = temp;
+			done = 1;
+		}
+}
+
 /* sortInterEntry sorts an entry array alphabetically by the first english translation of each entry.
    Entries that do not have  english translations are palced at the end of the array arranged
    according to the order of initialization 
-   @param entry - address of entry being sorted
+   @param entries - array of all entries in data
+   @param entryCount - the number of elements in the entries array
    Pre-condition: entryCount is greater than 1
 */
 void
 sortInterEntry(entryType entries[], int entryCount)
 {
-	entryType engEntries[MAX_ENTRIES];
-	int num_engEntries = 0;
-	int engIndices[MAX_ENTRIES];
-	entryType noEngEntries[MAX_ENTRIES];
-	int num_noEngEntries = 0;
-	int found = 0;
-	entryType tempE;
-	int tempI;
-	int min;
 	int i, j;
+	entryType tempArray[MAX_ENTRIES];
+	entryType tempArray2[MAX_ENTRIES];
+	entryType tempEntry;
+	int n_temp = 0;
+	int n_temp2 = 0;
+	int min;
 	
 	for (i = 0; i < entryCount; i++)
 	{
-		found = 0;
-		for (j = 0; j < entries[i].pairCount && !found; j++)
+		if (hasEnglish(entries[i]))
 		{
-			if (!strcmp(entries[i].pairs[j].language, "English"))
-			{
-				engEntries[num_engEntries] = entries[i];
-				engIndices[num_engEntries] = j;
-				num_engEntries++;
-				found = 1;
-			}
+			tempArray[n_temp] = entries[i];
+			n_temp++;
 		}
 		
-		if (!found)
+		else
 		{
-			noEngEntries[num_noEngEntries] = entries[i];
-			num_noEngEntries++;
+			tempArray2[n_temp2] = entries[i];
+			n_temp2++;
 		}
 	}
 	
-	for (i = 0; i < num_engEntries - 1; i++)
+	for (i = 0; i < n_temp; i++)
+		putEnglishFirst(&tempArray[i]);
+	
+	for (i = 0; i < n_temp - 1; i++)
 	{
 		min = i;
-		for (j = i+1; j < num_engEntries; j++)
+		for (j = i + 1; j < n_temp; j++)
 		{
-			if (strcmp(engEntries[min].pairs[engIndices[min]].translation,
-					   engEntries[j].pairs[engIndices[j]].translation) > 0)
-			{
+			if (strcmp(tempArray[min].pairs[0].translation, tempArray[j].pairs[0].translation) > 0)
 				min = j;
-			}
-			
-			if (min != i)
-			{
-				tempE = engEntries[i];
-				engEntries[i] = engEntries[min];
-				engEntries[min] = tempE;
-				
-				tempI = engIndices[i];
-				engIndices[i] = engIndices[min];
-				engIndices[min] = tempI;
-			}
+		}
+		
+		if (i != min)
+		{
+			tempEntry = tempArray[min];
+			tempArray[min] = tempArray[i];
+			tempArray[i] = tempEntry;
 		}
 	}
 	
-	for (i = 0; i < num_engEntries; i++)
+	for (i = 0; i < n_temp; i++)
 	{
-		entries[i] = engEntries[i];
+		entries[i] = tempArray[i];
 	}
 	
-	j = 0;
-	for (i = num_engEntries; i < entryCount; i++)
+	for (i = n_temp, j = 0; i < entryCount; i++, j++)
 	{
-		entries[i] = noEngEntries[j];
-		j++;
+		entries[i] = tempArray2[j];
 	}
+	
+	for (i = 0; i < entryCount; i++)
+		sortIntraEntry(&entries[i]);
 }
+
 
 /* searchForLTPair searches for a given language-translation pair in an entry
    @param entry - the entry being searched
@@ -1141,7 +1170,8 @@ displayAllEntries(entryType entries[], int entryCount)
    
         do
         {
-           printEntry(entries[indexOfEntryBeingDisplayed], stdout);
+        	printf("\n");
+           	printEntry(entries[indexOfEntryBeingDisplayed], stdout);
             printf("(%d/%d)\n", (indexOfEntryBeingDisplayed + 1), entryCount);
             printf("\n");
 
@@ -1612,6 +1642,7 @@ importData(entryType entries[], int* entryCount)
              wasEntryRead = readEntry(importFile, temp);
              if (wasEntryRead)
              {
+             	printf("\n");
                 printEntry(*temp, stdout);
                 printf("\n");
                 printf("Would you like to import this entry\n");
@@ -1928,21 +1959,30 @@ translateInput(entryType sourceEntries[], int n_sourceEntries)
 	string150 result;
 	int i;
 	
+	printf("\n");
+	
+	do 
+    {
+        initString(sourceLang);
+        charAfterLang = '\n';
+        printf("Enter language of source text: ");
+        getTransOrLang(sourceLang, &charAfterLang);
+        formatLanguage(sourceLang);
+    } while (!isLanguageValid(sourceLang, charAfterLang));
+    
+    strcpy(keyPair.language, sourceLang);
+    
+    do
+    {
+        initString(destLang);
+        charAfterLang = '\n';
+        printf("Enter language to translate to: ");
+        getTransOrLang(destLang, &charAfterLang);
+        formatLanguage(destLang);
+    } while (!isLanguageValid(destLang, charAfterLang));
+
 	do
 	{
-		printf("\n");
-		
-		do 
-	    {
-	        initString(sourceLang);
-	        charAfterLang = '\n';
-	        printf("Enter language of source text: ");
-	        getTransOrLang(sourceLang, &charAfterLang);
-	        formatLanguage(sourceLang);
-	    } while (!isLanguageValid(sourceLang, charAfterLang));
-	    
-	    strcpy(keyPair.language, sourceLang);
-	    
 	    do
 	    {
 	    	initString(input);
@@ -1954,15 +1994,6 @@ translateInput(entryType sourceEntries[], int n_sourceEntries)
 	    
 	    strcpy(original, input);
 	    
-	    do
-	    {
-	        initString(destLang);
-	        charAfterLang = '\n';
-	        printf("Enter language to translate to: ");
-	        getTransOrLang(destLang, &charAfterLang);
-	        formatLanguage(destLang);
-	    } while (!isLanguageValid(destLang, charAfterLang));
-	
 		n_words = 0;
 		tokenize(input, tokens, &n_words);
 	
@@ -2049,21 +2080,30 @@ translateFile(entryType sourceEntries[], int n_sourceEntries)
 	int wordsRead;
 	int i, j;
 	
+	printf("\n");
+	
+	do 
+    {
+        initString(sourceLang);
+        charAfterLang = '\n';
+        printf("Enter language of source text: ");
+        getTransOrLang(sourceLang, &charAfterLang);
+        formatLanguage(sourceLang);
+    } while (!isLanguageValid(sourceLang, charAfterLang));
+    
+    strcpy(keyPair.language, sourceLang);
+    
+    do
+    {
+        initString(destLang);
+        charAfterLang = '\n';
+        printf("Enter language to translate to: ");
+        getTransOrLang(destLang, &charAfterLang);
+        formatLanguage(destLang);
+    } while (!isLanguageValid(destLang, charAfterLang));
+	
 	do
 	{
-		printf("\n");
-		
-		do 
-	    {
-	        initString(sourceLang);
-	        charAfterLang = '\n';
-	        printf("Enter language of source text: ");
-	        getTransOrLang(sourceLang, &charAfterLang);
-	        formatLanguage(sourceLang);
-	    } while (!isLanguageValid(sourceLang, charAfterLang));
-	    
-	    strcpy(keyPair.language, sourceLang);
-	    
 	    printf("Provide the file name of the text file (.txt) to translate\n");
 		printf(" - include the \".txt\" file extension in input\n");
 		printf(" - file name should not exceed 30 characters (including file extension)\n");
@@ -2077,15 +2117,6 @@ translateFile(entryType sourceEntries[], int n_sourceEntries)
 			formatFilename(filename);
 			textFile = fopen(filename, "rt");
 		} while (!isExistingTextFilenameValid(filename, charAfterFilename, textFile));
-	    
-	    do
-	    {
-	        initString(destLang);
-	        charAfterLang = '\n';
-	        printf("Enter language to translate to: ");
-	        getTransOrLang(destLang, &charAfterLang);
-	        formatLanguage(destLang);
-	    } while (!isLanguageValid(destLang, charAfterLang));
 	    
 	    sentenceCount = 0;
 	    separateSentences(textFile, sentences, &sentenceCount);
@@ -2134,12 +2165,9 @@ translateFile(entryType sourceEntries[], int n_sourceEntries)
 		for (i = 0; i < sentenceCount; i++)
 		{
 			fprintf(outputFile, "%s", sentences[i]);
-			
-//			if (i != sentenceCount - 1)
 			fprintf(outputFile, "\n");
 		}
 			
-		
 		fclose(outputFile);
 		outputFile = fopen(filename, "rt");
 			
