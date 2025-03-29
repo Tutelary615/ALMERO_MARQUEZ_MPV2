@@ -6,6 +6,7 @@
 #include <conio.h>
 #include "MP_HEADER.h"
 
+// TO REMOVE 
 void 
 printStringASCII(char str[])
 {
@@ -15,6 +16,9 @@ printStringASCII(char str[])
     }
 }
 
+/* initString sets all the characters in a string to '\0'
+   @param str - string to be initialized
+*/
 void 
 initString(char str[])
 {
@@ -25,6 +29,9 @@ initString(char str[])
     }
 }
 
+/* setEntryData sets the default data for an entry
+   @param entry - address of the entry being set
+*/
 void
 setEntryData(entryType* entry)
 {
@@ -36,6 +43,11 @@ setEntryData(entryType* entry)
     }
     entry->pairCount = 0;
 }
+
+/* getInteger gets an integer input
+   @param num - address where integer input is stored
+   @return true if there is a valid integer input and false otherwise
+*/
 bool 
 getInteger(int* num)
 {
@@ -61,21 +73,32 @@ getInteger(int* num)
     return isInputValid;
 }
 
+/* isCharInSet checks if a character is among a set of characters
+   @param input - character which is being checked
+   @param validCharacters - string consisting of valid characters
+   @return true if the character bebing checked is among the set of characters
+           and false otherwise
+*/
 bool 
-isCharInputValid(char input, char validCharacters[])
+isCharInSet(char charToCheck, char validCharacters[])
 {
     int i;
-    bool isValid = false;
-    for (i = 0; i < strlen(validCharacters) && !isValid; i++)
+    bool isIn = false;
+    for (i = 0; i < strlen(validCharacters) && !isIn; i++)
     {
-        if (input == validCharacters[i])
+        if (charToCheck == validCharacters[i])
         {
-            isValid = true;
+            isIn = true;
         }
     }
-    return isValid;
+    return isIn;
 }
 
+/* getAndValidateCharInput gets a character input and checks if the entered character is 
+                           is in the set of valid characters 
+   @param validCharacters - string consisting of valid characters
+   @return the first valid character entered
+*/
 char 
 getAndValidateCharInput(char validCharacters[]) 
 {
@@ -83,18 +106,25 @@ getAndValidateCharInput(char validCharacters[])
     do 
     {
         input = getch();
-
-    } while (!isCharInputValid(input, validCharacters));
+        fflush(stdin);
+    } while (!isCharInSet(input, validCharacters));
 
     return input;
 }
 
+/* isMenuInputValid checks if the input for selecting from a menu (type int) is valid
+   @param isInputInt - indicates whether a valid integer was entered
+   @param lowerBound - the smallest valid integer
+   @param upperBound - the largest valid integer
+   @param input - the number entered
+   @return true if the input is valid and false otherwise
+*/
 bool
-isMenuInputValid(bool isInputValid, int lowerBound, int upperBound, int input)
+isMenuInputValid(bool isInputInt, int lowerBound, int upperBound, int input)
 {
 	bool isValid = true;
 
-	if (!isInputValid || input < lowerBound || input > upperBound)
+	if (!isInputInt || input < lowerBound || input > upperBound)
 	{
 		printf(REDFORMATSTRING, "Entered number is invalid, try again\n");
 		isValid = false;
@@ -103,32 +133,45 @@ isMenuInputValid(bool isInputValid, int lowerBound, int upperBound, int input)
 	return isValid;
 }
 
+/* getAndValidateMenuInput gets and validates an integer input
+   @param lowerBound - the smallest valid integer
+   @param uppperBound - the greatest valid integer
+   @return the first valid integer entered
+*/
 int 
 getAndValidateMenuInput(int lowerBound, int upperBound)
 {
     int choice;
-    bool isChoiceValid;
+    bool isInputInt;
     do
 	{
         printf("Enter choice: ");
-		isChoiceValid = getInteger(&choice);
+		isInputInt = getInteger(&choice);
 				
-	} while (!isMenuInputValid(isChoiceValid, 1, upperBound, choice));
+	} while (!isMenuInputValid(isInputInt, 1, upperBound, choice));
 	return choice;
 }
 
+/* printMenu prints menu items
+   @param choices - array of menu items
+   @param choiceCount - number of menu items
+*/
 void 
-printMenu(string30 choices[], int numberOfChoices)
+printMenu(string30 choices[], int choiceCount)
 {
     int i;
-    for (i = 0; i < numberOfChoices; i++)
+    for (i = 0; i < choiceCount; i++)
     {
         printf("%d - %s\n", (i + 1), choices[i]);
     }
 }
 
+/* isThereSpaceInString checks if a string has a space character
+   @param str - string being checked
+   @return true if the space character is found in the string and false otherwise
+*/
 bool
-isThereSpaceInString(string20 str)
+isThereSpaceInString(char str[])
 {
     int i;
     bool isThereSpace = false;
@@ -143,6 +186,9 @@ isThereSpaceInString(string20 str)
     return isThereSpace;
 }
 
+/* mainMenu contains all functions related to the main menu of the program 
+   @return number corresponding to option selected
+*/
 int
 mainMenu()
 {
@@ -161,6 +207,10 @@ mainMenu()
 	return choice;
 }
 
+/* manageDataMenu contains all functions related to the "Manage Data" menu 
+   @param entryCount - number of entries initialized
+   @return number corresponding to option selected
+*/
 int 
 manageDataMenu(int entryCount)
 {
@@ -183,6 +233,10 @@ manageDataMenu(int entryCount)
     return choice;
 }
 
+/* manageDataMenu contains all functions related to the "Manage Data" menu 
+   @param entryCount - number of entries initialized
+   @return number corresponding to option selected
+*/
 int 
 translateMenu()
 {
@@ -198,17 +252,34 @@ translateMenu()
     return choice;
 }
 
+/* getTransOrLang gets user input for word or language
+  @param str - string where word or language entered will be stored
+  @param charAfterInput - address where the first character read from input stream after
+                          entered word or language (if any) will be stored
+*/
 void
-getWordOrLanguage(string20 str, char* characterAfterInput)
+getTransOrLang(string20 str, char* charAfterInput)
 {
 	fgets(str, 21, stdin);
     if (strlen(str) == 20)
     {
-        *characterAfterInput = getc(stdin);
+        *charAfterInput = getc(stdin);
     }
     fflush(stdin);
 }
 
+/* isLanguageValid checks if an entered language is valid and prints error messages 
+   when invalid
+   conditions for invalidity:
+    - language entered exceeds 20 characters 
+    - language entered contains spaces 
+    - no language was entered
+   @param language - string containing the language entered
+   @param charAfterLang - first character read from input stream after
+                          entered word (if any)
+   @return true if the language entered is valid and false otherwise
+   Pre-condition: language is formatted using formatLanguage
+*/
 bool
 isLanguageValid(string20 language, char charAfterLang)
 {
@@ -231,8 +302,19 @@ isLanguageValid(string20 language, char charAfterLang)
     return isValid;
 }
 
+/* isTranslationValid checks if an entered word is valid and prints error messages when invalid
+   conditions for invalidity:
+    - word entered exceeds 20 characters
+    - word entered contains spaces
+    - no word was entered
+   @param word - string containing the word entered
+   @param charAfterWord - first character read from input stream after
+                          entered word (if any)
+   @return true if the word entered is valid and false otherwise
+   Pre-condition: language is formatted using formatTranslation
+*/
 bool 
-isWordValid(string20 word, char charAfterWord)
+isTranslationValid(string20 word, char charAfterWord)
 {
     bool isValid = true;
     if (charAfterWord != '\n')
@@ -253,12 +335,22 @@ isWordValid(string20 word, char charAfterWord)
     return isValid;
 }
 
+/* isLTPairValid checks if a language-translation pair entered is valid and prints 
+   error messages when invalid
+   @param language - string (formatted using formatLanguage) containing the language entered
+   @param translation - string (formatted using formatTranslation) containing the language entered
+   @param charAfterLang - first character read from input stream after
+                          entered language (if any)
+   @param charAfterTrans - first character read from input stream after
+                          entered translation (if any)
+   @return true if the language-translation pair is valid and false otherwise
+*/
 bool 
 isLTPairValid(string20 language, string20 translation, char charAfterLang, char charAfterTrans)
 {
     bool isValid = true;
 
-    if (!isWordValid(translation, charAfterTrans))
+    if (!isTranslationValid(translation, charAfterTrans))
     {
         isValid = false;
     }
@@ -269,6 +361,9 @@ isLTPairValid(string20 language, string20 translation, char charAfterLang, char 
     return isValid;
 }
 
+/* asks user to whether or not to proceed with an operation 
+   @return true if the user chooses to proceeds and false otherwise
+*/
 bool
 isOperationConfirmed()
 {
@@ -286,6 +381,10 @@ isOperationConfirmed()
 	return (input == 1);
 }
 
+/* formatLanguage formats a string such that it begins with a capital letter,
+   and all proceeding letters are lowercase and contains no newline character
+   @param language - string to be formatted
+*/
 void 
 formatLanguage(string20 language)
 {
@@ -304,6 +403,10 @@ formatLanguage(string20 language)
     }
 }
 
+/* formatTranslation formats a string such that all letters are lowercase and
+   contains no newline character
+   @param translation - string to be formatted
+*/
 void 
 formatTranslation(string20 translation)
 {
@@ -321,6 +424,9 @@ formatTranslation(string20 translation)
 
 }
 
+/* sortIntraEntry sorts the language-translation pairs of an entry
+   @param entry - address of entry being sorted
+*/
 void 
 sortIntraEntry(entryType* entry)
 {
@@ -414,28 +520,36 @@ sortInterEntry(entryType entries[], int entryCount)
 	}
 }
 
+/* searchForLTPair searches for a given language-translation pair in an entry
+   @param entry - the entry being searched
+   @param langKey - language being searched for
+   @param transKey - translation being searched for
+   @returns the index of the language-translation pair in the entry if 
+            the pair is found and -1 otherwise
+    Pre-condition: entry is sorted using sortIntraEntry
+*/
 int 
-searchLTPair(entryType entry, string20 languageKey, string20 translationKey)
+searchForLTPair(entryType entry, string20 langKey, string20 transKey) // FOR CHECKING
 {
     int i;
     int indexOfKey = -1;
     int startIndex = 0;
     int endIndex = entry.pairCount - 1;
 
-    while (strcmp(languageKey, entry.pairs[startIndex].language) == 1 && startIndex < entry.pairCount) 
+    while (strcmp(langKey, entry.pairs[startIndex].language) == 1 && startIndex < entry.pairCount) 
     {
         startIndex++;
     }
 
-    while (strcmp(languageKey, entry.pairs[endIndex].language) == -1 && endIndex > startIndex)
+    while (strcmp(langKey, entry.pairs[endIndex].language) == -1 && endIndex > startIndex)
     {
         endIndex--;
     }
     
     for (i = startIndex; i <= endIndex && indexOfKey == -1; i++)
     {
-        if((strcmp(languageKey, entry.pairs[i].language) == 0) && 
-		   (strcmp(translationKey, entry.pairs[i].translation) == 0))
+        if((strcmp(langKey, entry.pairs[i].language) == 0) && 
+		   (strcmp(transKey, entry.pairs[i].translation) == 0))
         {
             indexOfKey = i;
         }
@@ -444,6 +558,16 @@ searchLTPair(entryType entry, string20 languageKey, string20 translationKey)
     return indexOfKey;
 }
 
+/* searchAllEntriesForLTPair searches an array of entries for a given language-translation pair key
+   @param entries - array of entries to be searched
+   @param entryCount - number of entries to be searched 
+   @param langKey - language of language-translation pair key
+   @param transKey - translation of language-translation pair key
+   @param entryIndexesWithKey - array where the indexes of the entries where the 
+                                language-translation pair key is found
+                                will be stored
+   @return the number of entries where the language-translation pair key is found
+*/
 int
 searchAllEntriesForLTPair(entryType entries[], int entryCount, string20 langKey, string20 transKey, int entryIndexesWithKey[])
 {
@@ -451,7 +575,7 @@ searchAllEntriesForLTPair(entryType entries[], int entryCount, string20 langKey,
     int i;
     for (i = 0; i < entryCount; i++)
     {
-        if (searchLTPair(entries[i], langKey, transKey) != -1)
+        if (searchForLTPair(entries[i], langKey, transKey) != -1)
         {
             entryIndexesWithKey[entriesWithKeyCount] = i;
             entriesWithKeyCount++;
@@ -460,6 +584,10 @@ searchAllEntriesForLTPair(entryType entries[], int entryCount, string20 langKey,
     return entriesWithKeyCount;
 }
 
+/* printEntry prints an entry to a file
+   @param entry - entry being printed
+   @param outputFile - address of file where entry will be printed
+*/
 void 
 printEntry(entryType entry, FILE* outputFile)
 {
@@ -470,8 +598,13 @@ printEntry(entryType entry, FILE* outputFile)
     }
 }
 
+/* printEntryWithHighlightedPair prints an entry with a highlighed language-translation pair
+   @param entry - entry to be printed
+   @param langKey -  language of pair to highlight
+   @param transKey - translation of pair to highlight
+*/
 void 
-printEntryWithHighlightPair(entryType entry, string20 langKey, string20 transKey)
+printEntryWithHighlightedPair(entryType entry, string20 langKey, string20 transKey)
 {
     int i;
     for (i = 0; i < entry.pairCount; i++)
@@ -487,6 +620,10 @@ printEntryWithHighlightPair(entryType entry, string20 langKey, string20 transKey
     }
 }
 
+/* printAllEntriesAsMenu prints entries formatted as a menu
+   @param entries - array of entries to be printed
+   @param entryCount - number of entries to be printed
+*/
 void 
 printAllEntriesAsMenu(entryType entries[], int entryCount)
 {
@@ -500,6 +637,9 @@ printAllEntriesAsMenu(entryType entries[], int entryCount)
     }
 }
 
+/* printEntryAsMenu prints the language-translation pairs of an entry formatted as a menu
+   @param entry - entry to be printed
+*/
 void
 printEntryAsMenu(entryType entry)
 {
@@ -511,6 +651,13 @@ printEntryAsMenu(entryType entry)
     }
 }
 
+/* initEntry contains all functions for initializing a new entry
+   @param entries - array of entries where new entry will be initialized
+   @param entryCount - address containing the number of initialized entries
+   @return true if a new entry was successfully initialized and false otherwise
+   Pre-condition: the number of initialized entries is less than the 
+                  maximum number of entries (150)
+*/
 bool
 initEntry(entryType entries[], int* entryCount)
 {
@@ -530,9 +677,9 @@ initEntry(entryType entries[], int* entryCount)
 		initString(language);
 		
         printf("Enter word: ");
-        getWordOrLanguage(word, &charAfterWord);
+        getTransOrLang(word, &charAfterWord);
         printf("Enter language: ");
-        getWordOrLanguage(language, &charAfterLang);
+        getTransOrLang(language, &charAfterLang);
         
         formatLanguage(language);
         formatTranslation(word);
@@ -541,9 +688,9 @@ initEntry(entryType entries[], int* entryCount)
 	
 	for (i = 0; i < *entryCount; i++)
 	{
-		if (searchLTPair(entries[i], language, word) != -1)
+		if (searchForLTPair(entries[i], language, word) != -1)
 		{
-			printEntryWithHighlightPair(entries[i], language, word);
+			printEntryWithHighlightedPair(entries[i], language, word);
 			printf("\n");
 			matchCount++;
 		}			
@@ -575,6 +722,10 @@ initEntry(entryType entries[], int* entryCount)
     return isNewEntryInitialized;
 }
 
+/* add LTPair contains all functions for adding a new language-translation pair
+   to an existing entry 
+   @param entry - address of entry to be modified
+*/
 void
 addLTPair(entryType* entry)
 {
@@ -590,15 +741,15 @@ addLTPair(entryType* entry)
         charAfterLang = '\n';
         charAfterTrans = '\n';
         printf("Enter translation: ");
-        getWordOrLanguage(transToAdd, &charAfterTrans);
+        getTransOrLang(transToAdd, &charAfterTrans);
         printf("Enter language: ");
-        getWordOrLanguage(langToAdd, &charAfterLang);
+        getTransOrLang(langToAdd, &charAfterLang);
         formatLanguage(langToAdd);
         formatTranslation(transToAdd);
 
     } while (!isLTPairValid(langToAdd, transToAdd, charAfterLang, charAfterTrans));
 
-    if (searchLTPair(*entry, langToAdd, transToAdd) == -1)
+    if (searchForLTPair(*entry, langToAdd, transToAdd) == -1)
     {
         printf("Would you like to add this translation?\n");
     
@@ -622,17 +773,30 @@ addLTPair(entryType* entry)
     }
 }
 
+/* addEntry contains all functions for the "Add Entry" feature
+   @param entries - array of entries where new entry will be added
+   @param entryCount - address containing the number of initialized entries
+*/
 void 
 addEntry(entryType entries[], int* entryCount)
 {
     bool isNewEntryInitialized;
     bool willAddTranslation;
 
-    entries[*entryCount].pairCount = 0;
-    isNewEntryInitialized = initEntry(entries, entryCount);
+   if (*entryCount < MAX_ENTRIES)
+   {
+        entries[*entryCount].pairCount = 0;
+        isNewEntryInitialized = initEntry(entries, entryCount);
+   }
+   else 
+   {
+        isNewEntryInitialized = false;
+        printf(YELLOWFORMATSTRING, "The maximum of 150 entries has been reached\n");
+        printf(YELLOWFORMATSTRING, "You may delete exisiting entries to add new ones\n");
+   }
 
-    if (isNewEntryInitialized)
-    {
+   if (isNewEntryInitialized)
+   {
         do
         {
             printf("Would you like to add another translation?\n");
@@ -644,10 +808,31 @@ addEntry(entryType entries[], int* entryCount)
                 sortIntraEntry(&entries[*entryCount - 1]);
             }
         
-        } while (willAddTranslation);
-    }
+        } while (willAddTranslation && entries[*entryCount - 1].pairCount < MAX_PAIRS_PER_ENTRY);
+
+        if (entries[*entryCount - 1].pairCount == MAX_PAIRS_PER_ENTRY)
+        {
+            printf(YELLOWFORMATSTRING, "The maximum of 10 translations has been reached\n");
+        }
+        if (*entryCount > 1)
+        {
+            sortInterEntry(entries, *entryCount);
+        }
+   }
+    printf("Press any key to return to manage data menu\n");
+    getch();
+    fflush(stdin);
+
 }
 
+/* printEntriesAsMenuWithHighlight prints entries formatted as a menu with a 
+   highlighted language-translation pair
+   @param entries - array of initialized entries
+   @param langKey - language of highlighted pair
+   @param transKey - translation of highlighted pair
+   @param indexesToPrint - array containing the indexes of the entries to be printed
+   @param entriesToPrintCount - number of entries to print
+*/
 void 
 printEntriesAsMenuWithHighlight(entryType entries[], string20 langKey, string20 transKey, int indexesToPrint[], int entriesToPrintCount)
 {
@@ -655,12 +840,16 @@ printEntriesAsMenuWithHighlight(entryType entries[], string20 langKey, string20 
 
     for (i = 0; i < entriesToPrintCount; i++)
     {
-        printEntryWithHighlightPair(entries[indexesToPrint[i]], langKey, transKey);
+        printEntryWithHighlightedPair(entries[indexesToPrint[i]], langKey, transKey);
         printf("\033[0;33m - %d\033[0m", i + 1);
         printf("\n");
     }
 }
 
+/* addTranslation contains all the functions for the "Add Translation" feature
+   @param entries - array of entries where translation will be added
+   @param entryCount - number of initialized entries
+*/
 void 
 addTranslation(entryType entries[], int entryCount)
 {
@@ -681,9 +870,9 @@ addTranslation(entryType entries[], int entryCount)
 		initString(transKey);
         
         printf("Enter word to translate: ");
-        getWordOrLanguage(transKey, &charAfterTrans);
+        getTransOrLang(transKey, &charAfterTrans);
         printf("Enter source language: ");
-        getWordOrLanguage(langKey, &charAfterTrans);
+        getTransOrLang(langKey, &charAfterTrans);
         formatLanguage(langKey);
 		formatTranslation(transKey);
 	} while (!isLTPairValid(langKey, transKey, charAfterLang, charAfterTrans));
@@ -724,8 +913,8 @@ addTranslation(entryType entries[], int entryCount)
                 willAddAnotherTranslation = isOperationConfirmed();
             }
         } while (willAddAnotherTranslation && entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY);
-        
-        
+
+        sortInterEntry(entries, entryCount);
     }
     
     if (entriesWithKeyCount > 0 && entries[indexOfEntryToEdit].pairCount == MAX_PAIRS_PER_ENTRY)
@@ -738,6 +927,11 @@ addTranslation(entryType entries[], int entryCount)
 	   
 }
 
+/* removeLTPair deletes a specified language-translation pair and 
+   rearranges the entry to fill the space of the deleted pair
+   @param entry - address of entry to be modified
+   @param indexOfPairToRemove - the index of the pair to be deleted
+*/
 void 
 removeLTPair(entryType* entry, int indexOfPairToRemove)
 {
@@ -752,8 +946,31 @@ removeLTPair(entryType* entry, int indexOfPairToRemove)
     (entry->pairCount)--;
 }
 
+/* removeLTPair deletes a specified entry and 
+   rearranges the entry array to fill the space of the deleted entry
+   @param entries - array of entries to be modified
+   @param delIndex - index of entry to delete
+   @param entryCount - address containing the number of initialized entries
+*/
+
+void removeEntry(entryType entries[], int delIndex, int* entryCount)
+{
+    int i;
+    for (i = delIndex; i < *entryCount - 1; i++)
+    {
+        entries[i] = entries[i + 1];
+    }
+    setEntryData(&entries[*entryCount - 1]);
+    (*entryCount)--;
+    
+}
+
+/* contains all functions for the "Delete Translation" feature
+   @param entries - array of entries
+   @param entryCount - address containing number of initialized entries
+*/
 void 
-deleteTranslation(entryType entries[], int entryCount)
+deleteTranslation(entryType entries[], int *entryCount)
 {
     int indexOfEntryToEdit;
     int indexOfPairToDelete;
@@ -762,19 +979,16 @@ deleteTranslation(entryType entries[], int entryCount)
     printf("Select an entry to delete from.\n");
     printf("\n");
 
-    printAllEntriesAsMenu(entries, entryCount); 
+    printAllEntriesAsMenu(entries, *entryCount); 
     
     printf("\n");
     printf("Enter the number corresponding to your choice: ");
     getInteger(&indexOfEntryToEdit);
     indexOfEntryToEdit -= 1;
 
-    if (indexOfEntryToEdit >= entryCount || indexOfEntryToEdit < 0)
+    if (indexOfEntryToEdit >= *entryCount || indexOfEntryToEdit < 0)
     {
         printf(REDFORMATSTRING, "The choice entered is invalid.\n");
-        printf("Press any key to return to return to \"manage data\" menu\n");
-        getch();
-        fflush(stdin);
     }
 
     else
@@ -797,6 +1011,7 @@ deleteTranslation(entryType entries[], int entryCount)
                 {
                     removeLTPair(&entries[indexOfEntryToEdit], indexOfPairToDelete);
                     printf(GREENFORMATSTRING, "Translation successfully deleted\n");
+                    sortInterEntry(entries, *entryCount);
                 }
                 else
                 {
@@ -807,21 +1022,36 @@ deleteTranslation(entryType entries[], int entryCount)
             {
                 printf(REDFORMATSTRING, "The choice entered is invalid\n");
             }
+            willDeleteAnother = false;
+            if (entries[indexOfEntryToEdit].pairCount > 0)
+            {
+                printf("Would you like to delete another translation\n");
+                willDeleteAnother = isOperationConfirmed();
 
-            printf("Would you like to delete another pair\n");
-            willDeleteAnother = isOperationConfirmed();
-
+            }
             
         } while (willDeleteAnother);
         
+        if (entries[indexOfEntryToEdit].pairCount == 0)
+        {
+            removeEntry(entries, indexOfEntryToEdit, entryCount);
+            printf(YELLOWFORMATSTRING, "All pairs in this entry have been deleted\n");   
+        }
+        sortInterEntry(entries,*entryCount);  
+        printf("Press any key to return to return to \"manage data\" menu\n");
+        getch();
+        fflush(stdin); 
     }
 }
 
+/* contains all functions for the "Delete Entry" feature
+   @param entries - array of entries
+   @param entryCount - address containing number of initialized entries
+*/
 void
 deleteEntry(entryType entries[], int *entryCount)
 {
     int delIndex;
-	int i;
 	
 	printf("Select an entry to delete.\n");
 	printf("\n");
@@ -847,13 +1077,7 @@ deleteEntry(entryType entries[], int *entryCount)
     	
     	if (isOperationConfirmed())
     	{
-    		for (i = delIndex; i < *entryCount - 1; i++)
-	    	{
-	    		entries[i] = entries[i + 1];
-			}
-            setEntryData(&entries[*entryCount - 1]);
-            (*entryCount)--;
-			
+            removeEntry(entries, delIndex, entryCount);
     		printf(GREENFORMATSTRING, "Entry successfully deleted\n");
 		}
 		
@@ -867,6 +1091,11 @@ deleteEntry(entryType entries[], int *entryCount)
 	}
 }
 
+/* printEntryWithHighlightWord prints an entry with all pairs containing a 
+   given word is highlighted
+   @param entry - the entry to print
+   @param keyWord - the word to highlight
+*/
 void 
 printEntryWithHighlightWord(entryType entry, string20 keyWord)
 {
@@ -885,6 +1114,10 @@ printEntryWithHighlightWord(entryType entry, string20 keyWord)
     }
 }
 
+/* displayAllEntries displays entries one by one
+   @param entries - array of entries to display
+   @param entryCount - number of entries to be printed
+*/
 void 
 displayAllEntries(entryType entries[], int entryCount)
 {
@@ -932,6 +1165,8 @@ displayAllEntries(entryType entries[], int entryCount)
 
 }
 
+/* displaySpecificEntries 
+*/
 void 
 displaySpecificEntries(entryType entries[], int indexesOfEntriesToDisplay[], int numberOfEntriesToDisplay, string20 langKey, string20 wordKey)
 {
@@ -946,7 +1181,7 @@ displaySpecificEntries(entryType entries[], int indexesOfEntriesToDisplay[], int
             }
             else
             {
-                printEntryWithHighlightPair(entries[indexesOfEntriesToDisplay[indexOfEntryBeingDisplayed]], langKey, wordKey);
+                printEntryWithHighlightedPair(entries[indexesOfEntriesToDisplay[indexOfEntryBeingDisplayed]], langKey, wordKey);
             }
             printf("(%d/%d)\n", (indexOfEntryBeingDisplayed + 1), numberOfEntriesToDisplay);
             printf("\n");
@@ -1006,7 +1241,7 @@ void
 searchByWord(entryType entries[], int entryCount)
 {
     string20 keyWord;
-    int* entriesWithKeyWordIndexes = (int*)malloc(0);
+    int entriesWithKeyWordIndexes[MAX_ENTRIES];
     int entriesWithKeyWordCount = 0;
     int i;
     char charAfterKeyWord;
@@ -1014,17 +1249,16 @@ searchByWord(entryType entries[], int entryCount)
     {
         charAfterKeyWord = '\n';
         printf("Enter word to search: ");
-        getWordOrLanguage(keyWord, &charAfterKeyWord);
+        getTransOrLang(keyWord, &charAfterKeyWord);
         formatTranslation(keyWord);
-    } while (!isWordValid(keyWord, charAfterKeyWord));
+    } while (!isTranslationValid(keyWord, charAfterKeyWord));
     
     for (i = 0; i < entryCount; i++)
     {
         if (searchEntryForKeyWord(entries[i], keyWord) != -1)
         {
+            entriesWithKeyWordIndexes[entriesWithKeyWordCount] = i;
             entriesWithKeyWordCount++;
-            entriesWithKeyWordIndexes = (int*)realloc(entriesWithKeyWordIndexes, entriesWithKeyWordCount * sizeof(int));
-            entriesWithKeyWordIndexes[entriesWithKeyWordCount - 1] = i;
         }
     }
 
@@ -1050,7 +1284,7 @@ searchByTranslation(entryType entries[], int entryCount)
     string20 wordKey;
     char charAfterLangKey;
     char charAfterWordKey;
-    int* entriesWithLTPairKeyIndexes = (int*)malloc(0);
+    int entriesWithLTPairKeyIndexes[MAX_ENTRIES];
     int entriesWithLTPairKeyCount = 0;
     int i;
 
@@ -1062,20 +1296,20 @@ searchByTranslation(entryType entries[], int entryCount)
         charAfterWordKey = '\n';
 
         printf("Enter language: ");
-        getWordOrLanguage(langKey, &charAfterLangKey);
+        getTransOrLang(langKey, &charAfterLangKey);
         printf("Enter word: ");
-        getWordOrLanguage(wordKey, &charAfterWordKey);
+        getTransOrLang(wordKey, &charAfterWordKey);
         formatLanguage(langKey);
         formatTranslation(wordKey);
     } while (!isLTPairValid(langKey, wordKey, charAfterLangKey, charAfterWordKey));
 
     for (i = 0; i < entryCount; i++)
     {
-        if (searchLTPair(entries[i], langKey, wordKey) != -1)
+        if (searchForLTPair(entries[i], langKey, wordKey) != -1)
         {
+            entriesWithLTPairKeyIndexes[entriesWithLTPairKeyCount] = i;
             entriesWithLTPairKeyCount++;
-            entriesWithLTPairKeyIndexes = realloc(entriesWithLTPairKeyIndexes, entriesWithLTPairKeyCount * sizeof(int));
-            entriesWithLTPairKeyIndexes[entriesWithLTPairKeyCount - 1] = i;
+           
         }
     }
     if (entriesWithLTPairKeyCount > 0)
@@ -1294,12 +1528,13 @@ importData(entryType entries[], int* entryCount)
              }
              free(temp);
          } while (!feof(importFile) && *entryCount < MAX_ENTRIES);
- 
+         sortInterEntry(entries, *entryCount);
+
          if (*entryCount == MAX_ENTRIES)
          {
              printf(YELLOWFORMATSTRING, "The maximum of 150 entries has been reached\n");
          }
-         sortInterEntry(entries, *entryCount);
+        
          
      }
      else 
@@ -1369,40 +1604,42 @@ exportData(entryType entries[], int entryCount)
 }
 
 void 
-manageData(entryType entries[], int* entryCount)
+manageData()
 {
     int choice;
+    entryType entries[MAX_ENTRIES];
+    int entryCount = 0;
     do
     {
-        choice = manageDataMenu(*entryCount);
+        choice = manageDataMenu(entryCount);
 
         switch(choice)
         {
-            case 1: addEntry(entries, entryCount);
+            case 1: addEntry(entries, &entryCount);
                     break;
             
-            case 2: importData(entries, entryCount);
+            case 2: importData(entries, &entryCount);
                     break;
             
-            case 3: addTranslation(entries, *entryCount);
+            case 3: addTranslation(entries, entryCount);
                     break;
             
-            case 4: deleteEntry(entries, entryCount);
+            case 4: deleteEntry(entries, &entryCount);
                     break;
             
-            case 5: deleteTranslation(entries, *entryCount);
+            case 5: deleteTranslation(entries, &entryCount);
                     break;
 
-            case 6: displayAllEntries(entries, *entryCount);
+            case 6: displayAllEntries(entries, entryCount);
                     break;
 
-            case 7: searchByWord(entries, *entryCount);
+            case 7: searchByWord(entries, entryCount);
                     break;
             
-            case 8: searchByTranslation(entries, *entryCount);
+            case 8: searchByTranslation(entries, entryCount);
                     break;
             
-            case 9: exportData(entries, *entryCount);
+            case 9: exportData(entries, entryCount);
                     break;
         }
     } while (choice != 10);
@@ -1420,10 +1657,14 @@ removePunctuation(string150 textInput)
             for (j = i; j < len; j++)
             {
                 if (j != len - 1)
+                {
                     textInput[j] = textInput[j + 1];
+                }
                 
                 else
+                {
                     textInput[j] = '\0';
+                }
             }
 
             i--;
@@ -1464,7 +1705,9 @@ detokenize(string150 result, string50 tokens[], int n_words)
         strcat(result, tokens[i]);
 
         if (i != n_words - 1)
+        {
             strcat(result, " ");
+        }
     }
 }
 
@@ -1537,15 +1780,16 @@ findTransInEntry(entryType keyEntry, string20 destLang)
 {
 	int i;
 	int index = -1;
-	int found = 0;
+    bool isFound = false;
 	
-	for (i = 0; i < keyEntry.pairCount && !found; i++)
-		if (!strcmp(keyEntry.pairs[i].language, destLang))
+	for (i = 0; i < keyEntry.pairCount && !isFound; i++)
+    {
+		if (strcmp(keyEntry.pairs[i].language, destLang) == 0)
 		{
 			index = i;
-			found = 1;
+			isFound = true;
 		}
-	
+    }
 	return index;
 }
 
@@ -1576,7 +1820,7 @@ translateInput(entryType sourceEntries[], int n_sourceEntries)
 	        initString(sourceLang);
 	        charAfterLang = '\n';
 	        printf("Enter language of source text: ");
-	        getWordOrLanguage(sourceLang, &charAfterLang);
+	        getTransOrLang(sourceLang, &charAfterLang);
 	        formatLanguage(sourceLang);
 	    } while (!isLanguageValid(sourceLang, charAfterLang));
 	    
@@ -1598,7 +1842,7 @@ translateInput(entryType sourceEntries[], int n_sourceEntries)
 	        initString(destLang);
 	        charAfterLang = '\n';
 	        printf("Enter language to translate to: ");
-	        getWordOrLanguage(destLang, &charAfterLang);
+	        getTransOrLang(destLang, &charAfterLang);
 	        formatLanguage(destLang);
 	    } while (!isLanguageValid(destLang, charAfterLang));
 	

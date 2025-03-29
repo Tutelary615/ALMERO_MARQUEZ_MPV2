@@ -20,8 +20,3 @@ typedef struct {
 	LTPairType pairs[MAX_PAIRS_PER_ENTRY];
 	int pairCount;
 } entryType;
-
-typedef struct {
-    int entryIndex;
-    int pairIndex;
-} LTPairIndex;
