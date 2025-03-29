@@ -46,7 +46,7 @@ setEntryData(entryType* entry)
 
 /* getInteger gets an integer input
    @param num - address where integer input is stored
-   @return true if there is a valid integer input and false otherwise
+   @return true if a valid integer was entered and false otherwise
 */
 bool 
 getInteger(int* num)
@@ -75,18 +75,19 @@ getInteger(int* num)
 
 /* isCharInSet checks if a character is among a set of characters
    @param input - character which is being checked
-   @param validCharacters - string consisting of valid characters
+   @param charSet - string consisting of valid characters
    @return true if the character bebing checked is among the set of characters
            and false otherwise
+    Pre-condition 
 */
 bool 
-isCharInSet(char charToCheck, char validCharacters[])
+isCharInSet(char charToCheck, char charSet[])
 {
     int i;
     bool isIn = false;
-    for (i = 0; i < strlen(validCharacters) && !isIn; i++)
+    for (i = 0; i < strlen(charSet) && !isIn; i++)
     {
-        if (charToCheck == validCharacters[i])
+        if (charToCheck == charSet[i])
         {
             isIn = true;
         }
@@ -94,10 +95,11 @@ isCharInSet(char charToCheck, char validCharacters[])
     return isIn;
 }
 
-/* getAndValidateCharInput gets a character input and checks if the entered character is 
+/* getAndValidateCharInput keeps getting a character input until the entered character is 
                            is in the set of valid characters 
    @param validCharacters - string consisting of valid characters
    @return the first valid character entered
+   Pre-condition: there is at least 1 valid character
 */
 char 
 getAndValidateCharInput(char validCharacters[]) 
@@ -278,7 +280,8 @@ getTransOrLang(string20 str, char* charAfterInput)
    @param charAfterLang - first character read from input stream after
                           entered word (if any)
    @return true if the language entered is valid and false otherwise
-   Pre-condition: language is formatted using formatLanguage
+   Pre-condition: language is formatted using formatLanguage,
+                  charAfterLang is initialized to newline character before input
 */
 bool
 isLanguageValid(string20 language, char charAfterLang)
@@ -308,26 +311,27 @@ isLanguageValid(string20 language, char charAfterLang)
     - word entered contains spaces
     - no word was entered
    @param word - string containing the word entered
-   @param charAfterWord - first character read from input stream after
+   @param charAfterTrans - first character read from input stream after
                           entered word (if any)
    @return true if the word entered is valid and false otherwise
-   Pre-condition: language is formatted using formatTranslation
+   Pre-condition: language is formatted using formatTranslation,
+                  charAfterLang is initialized to newline character before input
 */
 bool 
-isTranslationValid(string20 word, char charAfterWord)
+isTranslationValid(string20 translation, char charAfterTrans)
 {
     bool isValid = true;
-    if (charAfterWord != '\n')
+    if (charAfterTrans != '\n')
     {
-        printf(REDFORMATSTRING, "Word entered exceeds 20 characters.\n");
+        printf(REDFORMATSTRING, "Word/translation entered exceeds 20 characters.\n");
         isValid = false;
     }
-    else if (isThereSpaceInString(word))
+    else if (isThereSpaceInString(translation))
     {
-        printf(REDFORMATSTRING, "Word must not contain spaces.\n");
+        printf(REDFORMATSTRING, "Word/translation must not contain spaces.\n");
         isValid = false;
     }
-    else if (strlen(word) == 0)
+    else if (strlen(translation) == 0)
     {
         printf(REDFORMATSTRING, "No word entered.\n");
         isValid = false;
@@ -344,6 +348,7 @@ isTranslationValid(string20 word, char charAfterWord)
    @param charAfterTrans - first character read from input stream after
                           entered translation (if any)
    @return true if the language-translation pair is valid and false otherwise
+   Pre-condition: charAfterLang and charAfterTrans are initialized to newline character before input
 */
 bool 
 isLTPairValid(string20 language, string20 translation, char charAfterLang, char charAfterTrans)
@@ -424,8 +429,11 @@ formatTranslation(string20 translation)
 
 }
 
-/* sortIntraEntry sorts the language-translation pairs of an entry
+/* sortIntraEntry sorts the language-translation pairs of an entry alphabetically
+   by language. Pairs that have the same language are arranged according to the order of addition
+   into the entry
    @param entry - address of entry being sorted
+   Pre-condition: there are at least two unique pairs in the entry
 */
 void 
 sortIntraEntry(entryType* entry)
@@ -448,6 +456,12 @@ sortIntraEntry(entryType* entry)
     }
 }
 
+/* sortInterEntry sorts an entry array alphabetically by the first english translation of each entry.
+   Entries that do not have  english translations are palced at the end of the array arranged
+   according to the order of initialization 
+   @param entry - address of entry being sorted
+   Pre-condition: entryCount is greater than 1
+*/
 void
 sortInterEntry(entryType entries[], int entryCount)
 {
@@ -715,9 +729,7 @@ initEntry(entryType entries[], int* entryCount)
 	else
 	{
         printf("\n");
-		printf(YELLOWFORMATSTRING, "Entry addition cancelled. Press any key to return to menu\n");
-		getch();
-		fflush(stdin);
+		printf(YELLOWFORMATSTRING, "Entry addition cancelled.\n");
 	}
     return isNewEntryInitialized;
 }
@@ -849,6 +861,7 @@ printEntriesAsMenuWithHighlight(entryType entries[], string20 langKey, string20 
 /* addTranslation contains all the functions for the "Add Translation" feature
    @param entries - array of entries where translation will be added
    @param entryCount - number of initialized entries
+   Pre-condition: entryCount is more than 0
 */
 void 
 addTranslation(entryType entries[], int entryCount)
@@ -1095,6 +1108,7 @@ deleteEntry(entryType entries[], int *entryCount)
    given word is highlighted
    @param entry - the entry to print
    @param keyWord - the word to highlight
+   Pre-conditiion: entry and keyWord is not null
 */
 void 
 printEntryWithHighlightWord(entryType entry, string20 keyWord)
@@ -1165,7 +1179,14 @@ displayAllEntries(entryType entries[], int entryCount)
 
 }
 
-/* displaySpecificEntries 
+/* displaySpecificEntries displays a set of entries one by one
+   with either a highlighted translation or a higlighted language-translation pair
+   @param entries - array of entries
+   @param indexOfEntriesToDisplay - array containing the indexes of the entries to be displayed
+   @param numberOfEntriesToDisplay - number of entries to be displayed
+   @param langKey - language of pair to highlight
+   @param wordKey - word to highlight
+   Pre-condition: transKey is not null
 */
 void 
 displaySpecificEntries(entryType entries[], int indexesOfEntriesToDisplay[], int numberOfEntriesToDisplay, string20 langKey, string20 wordKey)
@@ -1221,15 +1242,22 @@ displaySpecificEntries(entryType entries[], int indexesOfEntriesToDisplay[], int
 
 }
 
+/* searchEntryForKeyTrans searches an entry for a given translation (regardless of language)
+   @param entry - entry to be searched
+   @param transKey - translation being searched for 
+   @return the index of the first occurance of the translation in the entry if found and 
+           -1 otherwise
+    Pre-condition: the number of language-translation pairs in entry is greater than 0
+*/
 int 
-searchEntryForKeyWord(entryType entry, string20 keyWord)
+searchEntryForKeyTrans(entryType entry, string20 transKey)
 {
     int i;
     int indexOfKey = -1;
 
     for (i = 0; i < entry.pairCount && indexOfKey == -1; i++)
     {
-        if (strcmp(entry.pairs[i].translation, keyWord) == 0)
+        if (strcmp(entry.pairs[i].translation, transKey) == 0)
         {
             indexOfKey = i;
         }
@@ -1237,8 +1265,13 @@ searchEntryForKeyWord(entryType entry, string20 keyWord)
     return indexOfKey;
 }
 
+/* searchWord contains all functions for the "Search Word" feature
+   @param entries - array of entries to be searched
+   @param entryCount - number of entries to be searched
+   Pre-conditon: entryCount is greater than 0
+*/
 void 
-searchByWord(entryType entries[], int entryCount)
+searchWord(entryType entries[], int entryCount)
 {
     string20 keyWord;
     int entriesWithKeyWordIndexes[MAX_ENTRIES];
@@ -1255,7 +1288,7 @@ searchByWord(entryType entries[], int entryCount)
     
     for (i = 0; i < entryCount; i++)
     {
-        if (searchEntryForKeyWord(entries[i], keyWord) != -1)
+        if (searchEntryForKeyTrans(entries[i], keyWord) != -1)
         {
             entriesWithKeyWordIndexes[entriesWithKeyWordCount] = i;
             entriesWithKeyWordCount++;
@@ -1277,8 +1310,13 @@ searchByWord(entryType entries[], int entryCount)
     
 }
 
+/* searchTranslation contains all functions for the "Search Translation" feature
+   @param entries - array of entries to be searched
+   @param entryCount - number of entries to be searched
+   Pre-condition: entryCount is greater than 0
+*/
 void
-searchByTranslation(entryType entries[], int entryCount)
+searchTranslation(entryType entries[], int entryCount)
 {
     string20 langKey;
     string20 wordKey;
@@ -1327,26 +1365,31 @@ searchByTranslation(entryType entries[], int entryCount)
     
 }
 
+/* readEntry reads one entry from a file 
+   @param file - text file where entry is read from
+   @param bufferEntry - address where the entry read will be stored
+   Pre-condition: file is formatted correctly
+*/
 bool
-readEntry(FILE* importFile, entryType* tempEntry)
+readEntry(FILE* file, entryType* bufferEntry)
  {
      string50 readLine;
      char* readResult;
-     tempEntry->pairCount = 0;
+     bufferEntry->pairCount = 0;
      int i = 0;
      bool wasEntryRead = false;
      
      do
      {
          initString(readLine);
-         readResult = fgets(readLine, 51, importFile);
+         readResult = fgets(readLine, 51, file);
          if (strcmp(readLine, "\n") != 0 && readResult != NULL)
          {
-             strcpy(tempEntry->pairs[i].language, strtok(readLine, ": "));
-             strcpy(tempEntry->pairs[i].translation, strtok(NULL, ": "));
-             formatLanguage(tempEntry->pairs[i].language);
-             formatTranslation(tempEntry->pairs[i].translation);
-             tempEntry->pairCount++;
+             strcpy(bufferEntry->pairs[i].language, strtok(readLine, ": "));
+             strcpy(bufferEntry->pairs[i].translation, strtok(NULL, ": "));
+             formatLanguage(bufferEntry->pairs[i].language);
+             formatTranslation(bufferEntry->pairs[i].translation);
+             bufferEntry->pairCount++;
              i++;
              wasEntryRead = true;
          }
@@ -1354,19 +1397,27 @@ readEntry(FILE* importFile, entryType* tempEntry)
     
      return wasEntryRead;   
  }
- 
+
+/* getFilename gets user input for filename
+   @param filename - string where filename entered will be stored
+   @param charAfterInput - address where the first character read from input stream after
+                          entered word or language (if any) will be stored
+*/
 void 
-getFilename(string30 filename, char* characterAfterFilename)
+getFilename(string30 filename, char* charAfterInput)
 {
     printf("Enter filename: ");
     fgets(filename, 31, stdin); 
     if (strlen(filename) == 30)
     {
-        *characterAfterFilename = getc(stdin);
+        *charAfterInput = getc(stdin);
     }
     fflush(stdin);
 }
 
+/* formatFilename formats an entered filename such that it contains no newline character
+   @param filename - filename to be formatted
+*/
 void
 formatFilename(string30 filename)
 {   
@@ -1378,17 +1429,23 @@ formatFilename(string30 filename)
     }
 }
 
+/* isThereProhibitedCharInFilename checks if a filename contains a prohibited character
+   @param filename - filename being checked
+   @return true if the filenmae contains a prohibited character and false otherwise
+   Pre-condition: filename is already formatted using formatFilename
+*/
 bool
 isThereProhibitedCharInFilename(string30 filename)
 {
     bool isThereProhibitedCharacter = false;
-    char prohibitedCharacters[9] = {'<', '>', ':', '"', '/', '\\', '|', '?', '*'};
+    char prohibitedCharacters[15] = {'<', '>', ':', '"', '/', '\\', '|', '?', '*', '$', '#', '%', '&',
+                                      '{', '}'};
     int i;
     int j;
 
     for (i = 0; i < strlen(filename) && !isThereProhibitedCharacter; i++)
     {
-        for (j = 0; j < 9 && !isThereProhibitedCharacter; j++)
+        for (j = 0; j < 15 && !isThereProhibitedCharacter; j++)
         {
             if (filename[i] == prohibitedCharacters[j])
             {
@@ -1399,8 +1456,22 @@ isThereProhibitedCharInFilename(string30 filename)
     return isThereProhibitedCharacter;
 }
 
+/* isNewTextFilenameValid checks if an entered filename (type .txt) is valid
+   and prints errors messages when invalid
+   
+   condidions for validity:
+    - filename does not exceed 30 characters
+    - filename contains no prohibited characters
+    - filename ends with ".txt" file extension
+    - there is at least 1 character before the ".txt" file extension
+  
+    @param filename - filename being checked 
+    @param charAfterFilename - the first character read from input stream after
+                               entered word or language (if any)
+    @return true if the filename is valid and false otherwise
+*/
 bool
-isExportFilenameValid(string30 filename, char characterAfterFilename)
+isNewTextFilenameValid(string30 filename, char charAfterFilename)
 {
     bool isValid = true;
     if (strlen(filename) == 0)
@@ -1408,7 +1479,7 @@ isExportFilenameValid(string30 filename, char characterAfterFilename)
         printf(REDFORMATSTRING, "No filename was entered\n");
         isValid = false;
     }
-    else if (characterAfterFilename != '\n')
+    else if (charAfterFilename != '\n')
     {
         printf(REDFORMATSTRING, "File name entered contains more than 30 characters\n");
         isValid = false;
@@ -1432,8 +1503,25 @@ isExportFilenameValid(string30 filename, char characterAfterFilename)
     return isValid;
 }
 
+/* isNewTextFilenameValid checks if an entered filename (type .txt) is valid
+   and prints errors messages when invalid
+   
+   condidions for validity:
+    - filename does not exceed 30 characters
+    - filename contains no prohibited characters
+    - filename ends with ".txt" file extension
+    - there is at least 1 character before the ".txt" file extension
+    - a file with the filename entered exists
+  
+    @param filename - filename being checked 
+    @param - the first character read from input stream after
+             entered word or language (if any)
+    @param charAfterFilename - the first character read from input stream after
+                               entered word or language (if any)
+    @return true if the filename is valid and false otherwise
+*/
 bool
-isImportFilenameValid(string30 filename, char characterAfterFilename, FILE* importFile)
+isExistingTextFilenameValid(string30 filename, char charAfterFilename, FILE* importFile)
 {
     bool isValid = true;
     if (strlen(filename) == 0)
@@ -1441,7 +1529,7 @@ isImportFilenameValid(string30 filename, char characterAfterFilename, FILE* impo
         printf(REDFORMATSTRING, "No filename was entered. Try again\n");
         isValid = false;
     }
-    else if (characterAfterFilename != '\n')
+    else if (charAfterFilename != '\n')
     {
         printf(REDFORMATSTRING, "File name entered contains more than 30 characters. Try again\n");
         isValid = false;
@@ -1465,6 +1553,11 @@ isImportFilenameValid(string30 filename, char characterAfterFilename, FILE* impo
     return isValid;
 }
 
+/* printAllEntriesToFile prints entries to a text file with a newline after each entry
+   @param entries - array of entries to be printed
+   @param entryCount - number of entries to be printed
+   @param outputFile - address of file where entries will be printed
+*/
 void 
 printAllEntriesToFile(entryType entries[], int entryCount, FILE* outputFile)
 {
@@ -1477,13 +1570,17 @@ printAllEntriesToFile(entryType entries[], int entryCount, FILE* outputFile)
     }
 }
 
+/* importData contains all functions for "Import Data" feature
+   @param entries - array of entries
+   @param entryCount - address containing the number of initialized entries
+*/
 void
 importData(entryType entries[], int* entryCount)
  {
      FILE* importFile;
      string30 filename;
      entryType* temp;
-     char characterAfterFilename;
+     char charAfterFilename;
      bool wasEntryRead;
      bool willImportEntry;
  
@@ -1495,11 +1592,11 @@ importData(entryType entries[], int* entryCount)
      do
      {
          initString(filename);
-         characterAfterFilename = '\n';
-         getFilename(filename, &characterAfterFilename);
+         charAfterFilename = '\n';
+         getFilename(filename, &charAfterFilename);
          formatFilename(filename);
          importFile = fopen(filename, "r");
-     } while (!isImportFilenameValid(filename, characterAfterFilename, importFile));
+     } while (!isExistingTextFilenameValid(filename, charAfterFilename, importFile));
      printf("\n");
      
      printf("Would you like to proceed with import\n");
@@ -1549,12 +1646,16 @@ importData(entryType entries[], int* entryCount)
      
  }
 
+ /* exportData contains all functions for "Export Data" feature
+    @param entries - array of entries
+    @param entryCount - the number of initialized entries
+ */
 void 
 exportData(entryType entries[], int entryCount)
 {
     FILE* exportFile;
     string30 filename;
-    char characterAfterFilename;
+    char charAfterFilename;
 
     printf("Provide filename of file where data will be exported to\n");
     printf(" - the file name must end in \".txt\"\n");
@@ -1573,16 +1674,22 @@ exportData(entryType entries[], int entryCount)
     printf("   - | (vertical bar)\n");
     printf("   - ? (question mark)\n");
     printf("   - * (asterisk)\n");
+    printf("   - # (hashtag)\n");
+    printf("   - $ (dollar sign)\n");
+    printf("   - %% (percent)\n");
+    printf("   - & (ampersand)\n");
+    printf("   - { (left brace)\n");
+    printf("   - } (right brace)\n");
     
 
     printf("\n");
     do
     {
-        characterAfterFilename = '\n';
+        charAfterFilename = '\n';
         initString(filename);
-        getFilename(filename, &characterAfterFilename);
+        getFilename(filename, &charAfterFilename);
         formatFilename(filename);
-    } while (!isExportFilenameValid(filename, characterAfterFilename));
+    } while (!isNewTextFilenameValid(filename, charAfterFilename));
 
     printf("\n");
     printf("Would you like to proceed with export?\n");
@@ -1633,10 +1740,10 @@ manageData()
             case 6: displayAllEntries(entries, entryCount);
                     break;
 
-            case 7: searchByWord(entries, entryCount);
+            case 7: searchWord(entries, entryCount);
                     break;
             
-            case 8: searchByTranslation(entries, entryCount);
+            case 8: searchTranslation(entries, entryCount);
                     break;
             
             case 9: exportData(entries, entryCount);
@@ -1746,12 +1853,12 @@ isTextValid(string150 text, char charAfterText)
 }
 
 void
-getText(string150 text, char* characterAfterInput)
+getText(string150 text, char* charAfterInput)
 {
 	fgets(text, 151, stdin);
     if (strlen(text) == 150)
     {
-        *characterAfterInput = getc(stdin);
+        *charAfterInput = getc(stdin);
     }
     fflush(stdin);
 }
@@ -1894,7 +2001,7 @@ translate()
     entryType sourceEntries[MAX_ENTRIES];
     int n_sourceEntries = 0;
     string30 filename;
-    char characterAfterFilename;
+    char charAfterFilename;
     int i = 0;
     
     
@@ -1906,11 +2013,11 @@ translate()
 	do
 	{
 		initString(filename);
-		characterAfterFilename = '\n';
-		getFilename(filename, &characterAfterFilename);
+		charAfterFilename = '\n';
+		getFilename(filename, &charAfterFilename);
 		formatFilename(filename);
 		sourceFile = fopen(filename, "r");
-	} while (!isImportFilenameValid(filename, characterAfterFilename, sourceFile));
+	} while (!isExistingTextFilenameValid(filename, charAfterFilename, sourceFile));
 	printf("\n");
 	
 	do
