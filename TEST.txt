@@ -1,0 +1,15 @@
+Japanese: ai
+Chinese: ai
+Filipino: mahal
+English: love
+
+Filipino: ai
+Chineese: gui
+English: hello
+
+Spanish: amor
+English: love
+
+Japanese: ai
+French: amour
+Chinese: ai

@@ -1,0 +1,21 @@
+English: chair
+Filipino: upuan
+Spanish: silla
+
+English: food
+Filipino: pagkain
+German: sausage
+Japanese: af
+Spanish: amor
+
+English: food
+Spanish: comida
+Spanish: amor
+Tagalog: pagkain
+
+French: amour
+German: hitler
+Italian: amore
+Spanish: amor
+Tagalog: mahal
+

@@ -1,0 +1,38 @@
+Chinese: ma
+English: horse
+Filipino: kabayo
+Spanish: caballo
+Japanese: uma
+
+English: cow
+Chinese: niu
+Japanese: ushi
+Filipino: baka
+Spanish: vaca
+
+English: penis
+Filipino: titi
+Filipino: burat
+Filipino: oten
+Filipino: pototoy
+Filipino: junjun
+Japanese: chinpo
+Japanese: ochinchin
+Japanese: chinko
+Chinese: lanjiao
+
+English: banana
+Filipino: saging
+Chinese: xianggang
+
+English: io
+Filipino: ako
+Chinese: wo
+Japanese: watashi
+
+English: eat
+Filipino: kain
+Chinese: chi 
+Japanese: taberu
+Spanish: comer
+

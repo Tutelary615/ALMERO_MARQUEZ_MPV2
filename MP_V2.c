@@ -1753,6 +1753,9 @@ manageData()
     } while (choice != 10);
 }
 
+/* removePunctuation removes all punctuation marks from a string
+   @param textInput - string to be modified
+*/
 void
 removePunctuation(string150 textInput)
 {
@@ -1779,8 +1782,14 @@ removePunctuation(string150 textInput)
         }
 }
 
+/* tokenize tokenizes a string using the space character as a delimeter
+   @param textInput - the string being tokenized
+   @param tokens - array where tokens will be stored
+   @param tokenCount - address that stores the number of tokens extracted
+   Pre-condition: the string has at least one token
+*/
 void
-tokenize(string150 textInput, string50 tokens[], int* n_words)
+tokenize(string150 textInput, string50 tokens[], int* tokenCount)
 {
     int i = 0;
     char* token;
@@ -1793,7 +1802,7 @@ tokenize(string150 textInput, string50 tokens[], int* n_words)
     while (token != NULL)
     {
         strcpy(tempTokens[i], token);
-        (*n_words)++;
+        (*tokenCount)++;
         token = strtok(NULL, " ");
         i++;
     }
@@ -1802,17 +1811,17 @@ tokenize(string150 textInput, string50 tokens[], int* n_words)
 }
 
 void
-detokenize(string150 result, string50 tokens[], int n_words)
+detokenize(string150 result, string50 tokens[], int tokenCount)
 {
     int i;
 
     strcpy(result, "");
 
-    for (i = 0; i < n_words; i++)
+    for (i = 0; i < tokenCount; i++)
     {
         strcat(result, tokens[i]);
 
-        if (i != n_words - 1)
+        if (i != tokenCount - 1)
         {
             strcat(result, " ");
         }
