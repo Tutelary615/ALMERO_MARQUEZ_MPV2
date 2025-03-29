@@ -1988,9 +1988,169 @@ translateInput(entryType sourceEntries[], int n_sourceEntries)
 }
 
 void
+separateSentences(FILE *textFile, string150 sentences[], int *sentenceCount)
+{
+	int i = 0;
+	int wordsRead;
+	string50 buffer;
+	int bufferLen;
+    string150 tempSentences[50] = {};
+
+	while (!feof(textFile))
+	{
+		wordsRead = fscanf(textFile, "%s", buffer);
+		bufferLen = strlen(buffer);
+		strcat(tempSentences[i], buffer);
+		
+		if (wordsRead > 0 && (buffer[bufferLen - 1] != '.' &&
+							  buffer[bufferLen - 1] != '?' &&
+							  buffer[bufferLen - 1] != '!'))
+			strcat(tempSentences[i], " ");
+				
+		else if (wordsRead > 0)
+		{
+			(*sentenceCount)++;
+			i++;
+		}	
+	}    
+	
+	memcpy(sentences, tempSentences, sizeof(tempSentences));
+}
+
+void
 translateFile(entryType sourceEntries[], int n_sourceEntries)
 {
+	FILE *textFile;
+	FILE *outputFile;
+	string20 sourceLang;
+	string30 filename;
+	string20 destLang;
+	LTPairType keyPair;
+	char charAfterLang;
+	char charAfterFilename;
+	string50 tokens[50];
+	int n_words;
+	int keyEntryIndex;
+	entryType keyEntry;
+	int transPairIndex;
+	int sentenceCount;
+	string150 sentences[50];
+	char ch;
+	int wordsRead;
+	int i, j;
 	
+	do
+	{
+		printf("\n");
+		
+		do 
+	    {
+	        initString(sourceLang);
+	        charAfterLang = '\n';
+	        printf("Enter language of source text: ");
+	        getWordOrLanguage(sourceLang, &charAfterLang);
+	        formatLanguage(sourceLang);
+	    } while (!isLanguageValid(sourceLang, charAfterLang));
+	    
+	    strcpy(keyPair.language, sourceLang);
+	    
+	    printf("Provide the file name of the text file (.txt) to translate\n");
+		printf(" - include the \".txt\" file extension in input\n");
+		printf(" - file name should not exceed 30 characters (including file extension)\n");
+		printf("\n");
+		
+	    do
+	    {
+	    	initString(filename);
+	    	charAfterFilename = '\n';
+			getFilename(filename, &charAfterFilename);
+			formatFilename(filename);
+			textFile = fopen(filename, "rt");
+		} while (!isImportFilenameValid(filename, charAfterFilename, textFile));
+	    
+	    do
+	    {
+	        initString(destLang);
+	        charAfterLang = '\n';
+	        printf("Enter language to translate to: ");
+	        getWordOrLanguage(destLang, &charAfterLang);
+	        formatLanguage(destLang);
+	    } while (!isLanguageValid(destLang, charAfterLang));
+	    
+	    sentenceCount = 0;
+	    separateSentences(textFile, sentences, &sentenceCount);
+		fclose(textFile);
+	    
+	    printf("Provide the file name of the text file to output to (.txt)\n");
+		printf(" - include the \".txt\" file extension in input\n");
+		printf(" - file name should not exceed 30 characters (including file extension)\n");
+		printf("\n");
+		
+	    do
+	    {
+	    	initString(filename);
+	    	charAfterFilename = '\n';
+			getFilename(filename, &charAfterFilename);
+			formatFilename(filename);
+			outputFile = fopen(filename, "wt");
+		} while (!isImportFilenameValid(filename, charAfterFilename, textFile));
+		
+		for (j = 0; j < sentenceCount; j++)
+		{
+			n_words = 0;
+			tokenize(sentences[j], tokens, &n_words);
+		
+			for (i = 0; i < n_words; i++)
+			{
+				strcpy(keyPair.translation, tokens[i]);
+				keyEntryIndex = findKeyEntry(sourceEntries, n_sourceEntries, keyPair);
+		
+				if (keyEntryIndex != -1)
+				{
+					keyEntry = sourceEntries[keyEntryIndex];
+					transPairIndex = findTransInEntry(keyEntry, destLang);
+					
+					if (transPairIndex != -1)
+					{
+						strcpy(tokens[i], keyEntry.pairs[transPairIndex].translation);
+					}
+						
+				}
+			}
+			
+			detokenize(sentences[j], tokens, n_words);
+		}
+		
+		for (i = 0; i < sentenceCount; i++)
+		{
+			fprintf(outputFile, "%s", sentences[i]);
+			
+//			if (i != sentenceCount - 1)
+			fprintf(outputFile, "\n");
+		}
+			
+		
+		fclose(outputFile);
+		outputFile = fopen(filename, "rt");
+			
+		printf("\n");
+		printf("The translation of the text file is:\n");
+		printf("\n");
+		
+		while (!feof(outputFile))
+		{
+			wordsRead = fscanf(outputFile, "%c", &ch);
+			
+			if (wordsRead > 0)
+				printf("%c", ch);
+		}
+			
+		printf("\n");
+		printf("Would you like to translate another text file?\n");			
+		
+	} while (isOperationConfirmed());
+	
+	printf("\n");
 }
 
 void 
@@ -2003,7 +2163,6 @@ translate()
     string30 filename;
     char charAfterFilename;
     int i = 0;
-    
     
 	printf("Provide the file name of the text file (.txt) to obtain translation data from\n");
 	printf(" - include the \".txt\" file extension in input\n");
