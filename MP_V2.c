@@ -206,6 +206,7 @@ mainMenu()
 		isChoiceValid = getInteger(&choice);
 				
 	} while (!isMenuInputValid(isChoiceValid, 1, 3, choice));
+    
 	return choice;
 }
 
@@ -1872,8 +1873,8 @@ findKeyEntry(entryType sourceEntries[], int n_sourceEntries, LTPairType keyPair)
 	
 	for (i = 0; i < n_sourceEntries && !found; i++)
 		for (j = 0; j < sourceEntries[i].pairCount && !found; j++)
-			if (!strcmp(keyPair.language, sourceEntries[i].pairs[j].language) &&
-				!strcmp(keyPair.translation, sourceEntries[i].pairs[j].translation))
+			if (strcmp(keyPair.language, sourceEntries[i].pairs[j].language) == 0 &&
+				strcmp(keyPair.translation, sourceEntries[i].pairs[j].translation) == 0)
 				{
 					index = i;
 					found = 1;	
@@ -2048,7 +2049,7 @@ translateFile(entryType sourceEntries[], int n_sourceEntries)
 	        initString(sourceLang);
 	        charAfterLang = '\n';
 	        printf("Enter language of source text: ");
-	        getWordOrLanguage(sourceLang, &charAfterLang);
+	        getTransOrLang(sourceLang, &charAfterLang);
 	        formatLanguage(sourceLang);
 	    } while (!isLanguageValid(sourceLang, charAfterLang));
 	    
@@ -2066,14 +2067,14 @@ translateFile(entryType sourceEntries[], int n_sourceEntries)
 			getFilename(filename, &charAfterFilename);
 			formatFilename(filename);
 			textFile = fopen(filename, "rt");
-		} while (!isImportFilenameValid(filename, charAfterFilename, textFile));
+		} while (!isExistingTextFilenameValid(filename, charAfterFilename, textFile));
 	    
 	    do
 	    {
 	        initString(destLang);
 	        charAfterLang = '\n';
 	        printf("Enter language to translate to: ");
-	        getWordOrLanguage(destLang, &charAfterLang);
+	        getTransOrLang(destLang, &charAfterLang);
 	        formatLanguage(destLang);
 	    } while (!isLanguageValid(destLang, charAfterLang));
 	    
@@ -2093,7 +2094,7 @@ translateFile(entryType sourceEntries[], int n_sourceEntries)
 			getFilename(filename, &charAfterFilename);
 			formatFilename(filename);
 			outputFile = fopen(filename, "wt");
-		} while (!isImportFilenameValid(filename, charAfterFilename, textFile));
+		} while (!isExistingTextFilenameValid(filename, charAfterFilename, textFile));
 		
 		for (j = 0; j < sentenceCount; j++)
 		{
