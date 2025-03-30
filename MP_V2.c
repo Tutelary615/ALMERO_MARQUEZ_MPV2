@@ -3,8 +3,9 @@ This is to certify that this project is our own work, based on our personal effo
 learned. We have constructed the functions and their respective algorithms and corresponding code by ourselves. The
 program was run, tested, and debugged by our own efforts. We further certify that we have not copied in part or whole or
 otherwise plagiarized the work of other students and/or persons.
- Antonio Alvaro Almero, DLSU ID# 12410136
- John Thomas Marquez, DLSU ID# 12413445
+ 
+Antonio Alvaro Almero, DLSU ID# 12410136
+John Thomas Marquez, DLSU ID# 12413445
 *********************************************************************************************************/
 
 #include <stdio.h>
@@ -808,6 +809,7 @@ addLTPair(entryType* entry)
             strcpy(entry->pairs[entry->pairCount].translation, transToAdd);
             entry->pairCount++;
             sortIntraEntry(entry);
+            printf("\n");
             printf(GREENFORMATSTRING, "Translation successfully added\n");
         }
         else
@@ -968,9 +970,10 @@ addTranslation(entryType entries[], int entryCount)
     {   
         do
         {   
-            printf(DIVIDER);
+            printf("\n");
+            printf("Entry for modification:\n");
             printEntry(entries[indexOfEntryToEdit], stdout);
-            printf(DIVIDER);
+            printf("\n");
             printf("Enter language and translation to be added\n");
             addLTPair(&entries[indexOfEntryToEdit]);
             sortIntraEntry(&entries[indexOfEntryToEdit]);
@@ -982,10 +985,10 @@ addTranslation(entryType entries[], int entryCount)
             }
         } while (willAddAnotherTranslation && entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY);
 
-        sortInterEntry(entries, entryCount);
         printf("\n");
         printEntry(entries[indexOfEntryToEdit], stdout);
         printf("\n");
+        sortInterEntry(entries, entryCount);
     }
     
     if (entriesWithKeyCount > 0 && entries[indexOfEntryToEdit].pairCount == MAX_PAIRS_PER_ENTRY)
@@ -2042,8 +2045,6 @@ findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPa
  					index = i;
  					found = true;	
  				}
- 	
- 	return index;
 }
 
 int
