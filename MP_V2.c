@@ -1884,7 +1884,7 @@ removePunctuation(string150 textInput)
     int i, j;
 
     for (i = 0; i < len; i++)
-        if (ispunct(textInput[i]))
+        if (ispunct(textInput[i]) && textInput[i] != '-')
         {
             for (j = i; j < len; j++)
             {
