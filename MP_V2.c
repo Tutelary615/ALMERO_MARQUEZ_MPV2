@@ -80,6 +80,7 @@ getInteger(int* num)
    @param charSet - string consisting of valid characters
    @return true if the character bebing checked is among the set of characters
            and false otherwise
+	Pre-condition: Input is a character
 */
 bool 
 isCharInSet(char charToCheck, char charSet[])
@@ -384,6 +385,7 @@ isOperationConfirmed()
 /* formatLanguage formats a string such that it begins with a capital letter,
    and all proceeding letters are lowercase and contains no newline character
    @param language - string to be formatted
+   Pre-condition: language string is valid
 */
 void 
 formatLanguage(string20 language)
@@ -406,6 +408,7 @@ formatLanguage(string20 language)
 /* formatTranslation formats a string such that all letters are lowercase and
    contains no newline character
    @param translation - string to be formatted
+   Pre-condition: translation string is valid
 */
 void 
 formatTranslation(string20 translation)
@@ -734,7 +737,7 @@ initEntry(entryType entries[], int* entryCount)
 			matchCount++;
 		}			
 	}
-	
+
 	if (matchCount > 0)
 	{
 		printf("%d entry/entries with matching translation found.\n", matchCount);	
@@ -1014,7 +1017,8 @@ removeLTPair(entryType* entry, int indexOfPairToRemove)
    Pre-condition: the value stored in entryCount is more than 0
 */
 
-void removeEntry(entryType entries[], int delIndex, int* entryCount)
+void 
+removeEntry(entryType entries[], int delIndex, int* entryCount)
 {
     int i;
     for (i = delIndex; i < *entryCount - 1; i++)
@@ -2022,13 +2026,14 @@ findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPa
 	bool found = false;
 	
 	for (i = 0; i < sourceEntriesCount && !found; i++)
- 		for (j = 0; j < sourceEntries[i].pairCount && !found; j++)
- 			if (strcmp(keyPair.language, sourceEntries[i].pairs[j].language) == 0 &&
- 				strcmp(keyPair.translation, sourceEntries[i].pairs[j].translation) == 0)
- 				{
- 					index = i;
- 					found = true;	
- 				}
+    {
+        if (searchForLTPair(sourceEntries[i], keyPair.language, keyPair.translation) != -1)
+        {
+            index = i;
+            found = true;
+        }
+    }
+
 	return index;
 }
 
@@ -2352,7 +2357,6 @@ translateFile(entryType sourceEntries[], int sourceEntriesCount)
 		printf("Would you like to translate another text file?\n");			
 		
 	} while (isOperationConfirmed());
-	
 	printf("\n");
 }
 
