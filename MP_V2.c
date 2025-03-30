@@ -2317,6 +2317,7 @@ translateFile(entryType sourceEntries[], int sourceEntriesCount)
 			for (j = 0; j < sentenceCount; j++)
 			{
 				n_words = 0;
+				formatTextToTranslate(sentences[j]);
 				tokenize(sentences[j], tokens, &n_words);
 			
 				for (i = 0; i < n_words; i++)
