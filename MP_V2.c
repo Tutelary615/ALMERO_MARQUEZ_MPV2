@@ -1960,13 +1960,13 @@ getTextToTranslate(string150 text, char* charAfterInput)
 
 /*have equivalent function*/
 int
-findKeyEntry(entryType sourceEntries[], int n_sourceEntries, LTPairType keyPair)
+findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPair)
 {
 	int i, j;
 	int index = -1;
 	int found = 0;
 	
-	for (i = 0; i < n_sourceEntries && !found; i++)
+	for (i = 0; i < sourceEntriesCount && !found; i++)
 		for (j = 0; j < sourceEntries[i].pairCount && !found; j++)
 			if (strcmp(keyPair.language, sourceEntries[i].pairs[j].language) == 0 &&
 				strcmp(keyPair.translation, sourceEntries[i].pairs[j].translation) == 0)
@@ -2194,65 +2194,71 @@ translateFile(entryType sourceEntries[], int sourceEntriesCount)
 	    separateSentences(textFile, sentences, &sentenceCount);
 		fclose(textFile);
 	    
-	    printf("Provide the file name of the text file to output to (.txt)\n");
-		printf(" - include the \".txt\" file extension in input\n");
-		printf(" - file name should not exceed 30 characters (including file extension)\n");
-		printf("\n");
-		
-	    do
+	    if (sentenceCount == 0)
+	    	printf(REDFORMATSTRING, "No sentences found in text file\n");
+	    
+	    else
 	    {
-	    	initString(filename);
-	    	charAfterFilename = '\n';
-			getFilename(filename, &charAfterFilename);
-			formatFilename(filename);
-			outputFile = fopen(filename, "wt");
-		} while (!isExistingTextFilenameValid(filename, charAfterFilename, textFile));
-		
-		for (j = 0; j < sentenceCount; j++)
-		{
-			n_words = 0;
-			tokenize(sentences[j], tokens, &n_words);
-		
-			for (i = 0; i < n_words; i++)
+		    printf("Provide the file name of the text file to output to (.txt)\n");
+			printf(" - include the \".txt\" file extension in input\n");
+			printf(" - file name should not exceed 30 characters (including file extension)\n");
+			printf("\n");
+			
+		    do
+		    {
+		    	initString(filename);
+		    	charAfterFilename = '\n';
+				getFilename(filename, &charAfterFilename);
+				formatFilename(filename);
+				outputFile = fopen(filename, "wt");
+			} while (!isExistingTextFilenameValid(filename, charAfterFilename, textFile));
+			
+			for (j = 0; j < sentenceCount; j++)
 			{
-				strcpy(keyPair.translation, tokens[i]);
-				keyEntryIndex = findKeyEntry(sourceEntries, n_sourceEntries, keyPair);
-		
-				if (keyEntryIndex != -1)
+				n_words = 0;
+				tokenize(sentences[j], tokens, &n_words);
+			
+				for (i = 0; i < n_words; i++)
 				{
-					keyEntry = sourceEntries[keyEntryIndex];
-					transPairIndex = findTransInEntry(keyEntry, destLang);
-					
-					if (transPairIndex != -1)
+					strcpy(keyPair.translation, tokens[i]);
+					keyEntryIndex = findKeyEntry(sourceEntries, sourceEntriesCount, keyPair);
+			
+					if (keyEntryIndex != -1)
 					{
-						strcpy(tokens[i], keyEntry.pairs[transPairIndex].translation);
-					}
+						keyEntry = sourceEntries[keyEntryIndex];
+						transPairIndex = findTransInEntry(keyEntry, destLang);
 						
+						if (transPairIndex != -1)
+						{
+							strcpy(tokens[i], keyEntry.pairs[transPairIndex].translation);
+						}
+							
+					}
 				}
+				
+				detokenize(sentences[j], tokens, n_words);
 			}
 			
-			detokenize(sentences[j], tokens, n_words);
-		}
-		
-		for (i = 0; i < sentenceCount; i++)
-		{
-			fprintf(outputFile, "%s", sentences[i]);
-			fprintf(outputFile, "\n");
-		}
+			for (i = 0; i < sentenceCount; i++)
+			{
+				fprintf(outputFile, "%s", sentences[i]);
+				fprintf(outputFile, "\n");
+			}
+				
+			fclose(outputFile);
+			outputFile = fopen(filename, "rt");
+				
+			printf("\n");
+			printf("The translation of the text file is:\n");
+			printf("\n");
 			
-		fclose(outputFile);
-		outputFile = fopen(filename, "rt");
-			
-		printf("\n");
-		printf("The translation of the text file is:\n");
-		printf("\n");
-		
-		while (!feof(outputFile))
-		{
-			wordsRead = fscanf(outputFile, "%c", &ch);
-			
-			if (wordsRead > 0)
-				printf("%c", ch);
+			while (!feof(outputFile))
+			{
+				wordsRead = fscanf(outputFile, "%c", &ch);
+				
+				if (wordsRead > 0)
+					printf("%c", ch);
+			}	
 		}
 	    
 		printf("\n");
@@ -2271,7 +2277,7 @@ translate()
     int choice;
     FILE *sourceFile;
     entryType sourceEntries[MAX_ENTRIES];
-    int n_sourceEntries = 0;
+    int sourceEntriesCount = 0;
     string30 filename;
     char charAfterFilename;
     int i = 0;
@@ -2295,9 +2301,9 @@ translate()
 	{
 		readEntry(sourceFile, &sourceEntries[i]);
 		i++;
-		n_sourceEntries++;
+		sourceEntriesCount++;
 	} while (!feof(sourceFile));
-	sortInterEntry(sourceEntries, n_sourceEntries);
+	sortInterEntry(sourceEntries, sourceEntriesCount);
     
     do
     {
@@ -2305,10 +2311,10 @@ translate()
 		
         switch(choice)
         {
-            case 1: translateTextInput(sourceEntries, n_sourceEntries);
+            case 1: translateTextInput(sourceEntries, sourceEntriesCount);
                     break;
             
-            case 2: translateFile(sourceEntries, n_sourceEntries);
+            case 2: translateFile(sourceEntries, sourceEntriesCount);
                     break;
         }
     } while (choice != 3);
