@@ -55,7 +55,7 @@ setEntryData(entryType* entry)
 }
 
 /* getInteger gets an integer input
-   @param num - address where integer input is stored
+   @param num - address where integer input would be stored if the input is valid
    @return false if the only the newline character was entered and true otherwise
 */
 bool 
@@ -729,7 +729,7 @@ initEntry(entryType entries[], int* entryCount)
 		initString(language);
 		
         printf("Enter word: ");
-        getTransOrLang(word, &charAfterWord);
+        getTransOrLang(word, &charAfterWord);           // getting user input
         printf("Enter language: ");
         getTransOrLang(language, &charAfterLang);
         
@@ -742,9 +742,9 @@ initEntry(entryType entries[], int* entryCount)
 	{
 		if (searchForLTPair(entries[i], language, word) != -1)
 		{
-			printEntryWithHighlightedPair(entries[i], language, word);
-			printf("\n");
-			matchCount++;
+			printEntryWithHighlightedPair(entries[i], language, word);     // checking if language-translation pair entered
+			printf("\n");                                                  // exists in other entries and prints entries where                                                                                          
+			matchCount++;                                                  // where pair is found
 		}			
 	}
 
@@ -754,20 +754,20 @@ initEntry(entryType entries[], int* entryCount)
 	}
 	
 	printf("Would you like to add the entered translation to a new entry?\n");
-	if (isOperationConfirmed())
+	if (isOperationConfirmed()) // entry initialization is confirmed
 	{
-		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].language, language);
-		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].translation, word);
+		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].language, language);  // copying inputs to entry
+		strcpy(entries[*entryCount].pairs[entries[*entryCount].pairCount].translation, word);  
         entries[*entryCount].pairCount = 1;
 		(*entryCount)++;
         printf("\n");
         printf(GREENFORMATSTRING, "New entry successfully created\n");
         isNewEntryInitialized = true;
 	}
-	else
+	else // entry initialization is aborted
 	{
         printf("\n");
-		printf(YELLOWFORMATSTRING, "Entry addition cancelled.\n");
+		printf(YELLOWFORMATSTRING, "Entry initialization cancelled.\n");
 	}
     return isNewEntryInitialized;
 }
@@ -790,7 +790,7 @@ addLTPair(entryType* entry)
         initString(transToAdd);
         charAfterLang = '\n';
         charAfterTrans = '\n';
-        printf("Enter translation: ");
+        printf("Enter translation: ");                          // getting user input
         getTransOrLang(transToAdd, &charAfterTrans);
         printf("Enter language: ");
         getTransOrLang(langToAdd, &charAfterLang);
@@ -799,25 +799,25 @@ addLTPair(entryType* entry)
 
     } while (!isLTPairValid(langToAdd, transToAdd, charAfterLang, charAfterTrans));
 
-    if (searchForLTPair(*entry, langToAdd, transToAdd) == -1)
-    {
+    if (searchForLTPair(*entry, langToAdd, transToAdd) == -1) // checking if entered language-translation pair
+    {                                                         // already exists in entry
         printf("Would you like to add this translation?\n");
     
-        if (isOperationConfirmed())
+        if (isOperationConfirmed()) // modification is confirmed
         {
             strcpy(entry->pairs[entry->pairCount].language, langToAdd);
-            strcpy(entry->pairs[entry->pairCount].translation, transToAdd);
+            strcpy(entry->pairs[entry->pairCount].translation, transToAdd); // copying inputs to entry
             entry->pairCount++;
-            sortIntraEntry(entry);
+            sortIntraEntry(entry);   
             printf("\n");
             printf(GREENFORMATSTRING, "Translation successfully added\n");
         }
-        else
+        else // modification is aborted
         {
             printf(YELLOWFORMATSTRING, "Addition cancelled\n");
         } 
     }
-    else
+    else // entered language-translation pair already exists in entry
     {
         printf(YELLOWFORMATSTRING, "The translation entered already exists in this entry\n");
 
@@ -844,10 +844,10 @@ addEntry(entryType entries[], int* entryCount)
     printf("\n");
     printf("Inputs are not case sensitive and will be formatted automatically\n");
     printf("\n");
-   if (*entryCount < MAX_ENTRIES)
+   if (*entryCount < MAX_ENTRIES) 
    {
-        entries[*entryCount].pairCount = 0;
-        isNewEntryInitialized = initEntry(entries, entryCount);
+        entries[*entryCount].pairCount = 0;    // initializing entryCount
+        isNewEntryInitialized = initEntry(entries, entryCount); // initializing new entry
    }
    else 
    {
@@ -862,7 +862,7 @@ addEntry(entryType entries[], int* entryCount)
         {
             printf("\n");
             printf("Would you like to add another translation?\n");
-            willAddTranslation = isOperationConfirmed();
+            willAddTranslation = isOperationConfirmed();            // adding additional translations
             printf("\n");
             if (willAddTranslation)
             {
@@ -904,7 +904,7 @@ printEntriesAsMenuWithHighlight(entryType entries[], string20 langKey, string20 
     for (i = 0; i < entriesToPrintCount; i++)
     {
         printEntryWithHighlightedPair(entries[indexesToPrint[i]], langKey, transKey);
-        printf("\033[0;33m - %d\033[0m", i + 1);
+        printf("\033[0;33m - %d\033[0m", i + 1); // prints integer in yellow
         printf("\n");
     }
 }
@@ -941,18 +941,23 @@ addTranslation(entryType entries[], int entryCount)
 		initString(transKey);
         
         printf("Enter word to translate: ");
-        getTransOrLang(transKey, &charAfterTrans);
+        getTransOrLang(transKey, &charAfterTrans);      // getting user input for word to translate
         printf("Enter source language: ");
         getTransOrLang(langKey, &charAfterTrans);
         formatLanguage(langKey);
 		formatTranslation(transKey);
 	} while (!isLTPairValid(langKey, transKey, charAfterLang, charAfterTrans));
 
-    
+    // looking for entries with the word to translate
     entriesWithKeyCount = searchAllEntriesForLTPair(entries, entryCount, langKey, transKey, indexesOfEntriesWithKey);
-    indexOfEntryToEdit = indexesOfEntriesWithKey[0];
+    indexOfEntryToEdit = indexesOfEntriesWithKey[0]; // the entry to modify defaults to the first entry
+                                                     // found with the to translate   
     
-    if (entriesWithKeyCount > 1)
+    /* user is asked to choose the entry for modification if 
+       more than one entry with the entered word to be translated 
+       was found
+    */
+    if (entriesWithKeyCount > 1) 
     {
         printEntriesAsMenuWithHighlight(entries, langKey, transKey, indexesOfEntriesWithKey, entriesWithKeyCount);
         printf("Choose an entry where you would like to add a translation?\n");
@@ -974,8 +979,8 @@ addTranslation(entryType entries[], int entryCount)
             printf("Entry for modification:\n");
             printEntry(entries[indexOfEntryToEdit], stdout);
             printf("\n");
-            printf("Enter language and translation to be added\n");
-            addLTPair(&entries[indexOfEntryToEdit]);
+            printf("Enter language and translation to be added\n");  
+            addLTPair(&entries[indexOfEntryToEdit]);  // entry modification                   
             sortIntraEntry(&entries[indexOfEntryToEdit]);
             printf("\n");
             if (entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY)
@@ -1001,8 +1006,9 @@ addTranslation(entryType entries[], int entryCount)
     printf("\n");
 }
 
-/* removeLTPair deletes a specified language-translation pair and 
+/* removeLTPair deletes a specified language-translation pair, 
    rearranges the entry to fill the space of the deleted pair
+   and decrements the number of pairs
    @param entry - address of entry to be modified
    @param indexOfPairToRemove - the index of the pair to be deleted
    Pre-condition: there is at least one language-translation pair in entry
@@ -1014,7 +1020,7 @@ removeLTPair(entryType* entry, int indexOfPairToRemove)
 
     for (i = indexOfPairToRemove; i < (entry->pairCount) - 1; i++)
     {
-        entry->pairs[i] = entry->pairs[i + 1];
+        entry->pairs[i] = entry->pairs[i + 1]; 
     }
     initString(entry->pairs[entry->pairCount - 1].language);
     initString(entry->pairs[entry->pairCount - 1].translation);
@@ -1028,7 +1034,6 @@ removeLTPair(entryType* entry, int indexOfPairToRemove)
    @param entryCount - address containing the number of initialized entries
    Pre-condition: the value stored in entryCount is more than 0
 */
-
 void 
 removeEntry(entryType entries[], int delIndex, int* entryCount)
 {
@@ -1076,7 +1081,7 @@ deleteTranslation(entryType entries[], int *entryCount)
     {
         do
         {
-            printf(DIVIDER);
+            printf("\n");
             printEntryAsMenu(entries[indexOfEntryToEdit]);
             printf("\n");
             printf("Enter the number of the translation you want to delete: ");
@@ -1093,7 +1098,6 @@ deleteTranslation(entryType entries[], int *entryCount)
                 {
                     removeLTPair(&entries[indexOfEntryToEdit], indexOfPairToDelete);
                     printf(GREENFORMATSTRING, "Translation successfully deleted\n");
-                    sortInterEntry(entries, *entryCount);
                 }
                 else
                 {
@@ -1149,9 +1153,6 @@ deleteEntry(entryType entries[], int *entryCount)
     if (delIndex >= *entryCount || delIndex < 0)
     {
         printf(REDFORMATSTRING, "The choice entered is invalid.\n");
-        printf("Press any key to return to \"manage data\" menu\n");
-        getch();
-        fflush(stdin);
     }
     
     else
@@ -1169,10 +1170,10 @@ deleteEntry(entryType entries[], int *entryCount)
 		{
 			printf(YELLOWFORMATSTRING, "Deletion cancelled\n");
 		}
-        printf("Press any key to return to return to \"manage data\" menu\n");
-	    getch();
-	    fflush(stdin);
 	}
+    printf("Press any key to return to return to \"manage data\" menu\n");
+    getch();
+    fflush(stdin);
 }
 
 /* printEntryWithHighlightWord prints an entry with all pairs containing a 
