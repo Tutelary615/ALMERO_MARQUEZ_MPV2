@@ -3,8 +3,9 @@ This is to certify that this project is our own work, based on our personal effo
 learned. We have constructed the functions and their respective algorithms and corresponding code by ourselves. The
 program was run, tested, and debugged by our own efforts. We further certify that we have not copied in part or whole or
 otherwise plagiarized the work of other students and/or persons.
- Antonio Alvaro Almero, DLSU ID# 12410136
- John Thomas Marquez, DLSU ID# 12413445
+ 
+Antonio Alvaro Almero, DLSU ID# 12410136
+John Thomas Marquez, DLSU ID# 12413445
 *********************************************************************************************************/
 
 #include <stdio.h>
