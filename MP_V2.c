@@ -1958,22 +1958,29 @@ getTextToTranslate(string150 text, char* charAfterInput)
     fflush(stdin);
 }
 
-/*have equivalent function*/
+/* findKeyEntry finds a language-translation pair from an array of entries
+   @param sourceEntries - array of entries being searched
+   @param sourceEntriesCount - number of entries being searched
+   @param keyPair - language-translation pair being searched for
+   @return index of the first entry with the language translation pair being searched for and -1
+           if none of the entries have the said pair
+    Pre-condition: there is at least 1 entry to be searched
+*/
 int
 findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPair)
 {
-	int i, j;
+	int i;
 	int index = -1;
-	int found = 0;
+	bool found = false;
 	
 	for (i = 0; i < sourceEntriesCount && !found; i++)
-		for (j = 0; j < sourceEntries[i].pairCount && !found; j++)
-			if (strcmp(keyPair.language, sourceEntries[i].pairs[j].language) == 0 &&
-				strcmp(keyPair.translation, sourceEntries[i].pairs[j].translation) == 0)
-				{
-					index = i;
-					found = 1;	
-				}
+    {
+        if (searchForLTPair(sourceEntries[i], keyPair.language, keyPair.translation) != -1);
+        {
+            index = i;
+            found = true;
+        }
+    }
 
 	return index;
 }
