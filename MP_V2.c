@@ -207,7 +207,7 @@ manageDataMenu(int entryCount)
 {
     string30 optionsBeforeFirstEntry[3] = {"Add Entry", "Import Data", "Exit"}; // if there is no entry initialized, only these features would be presented
     string30 optionsAfterFirstEntry[10] = {"Add Entry", "Import Data", "Add Translations", "Delete Entry", "Delete Translation",
-                            "Display All Entries", "Search by Word", "Search By Translation", "Export Data", "return to main menu"}; 
+                            "Display All Entries", "Search by Word", "Search By Translation", "Export Data", "Return to main menu"}; 
     int choice;
     int upperBound;
     if (entryCount > 0)
@@ -1720,7 +1720,7 @@ importData(entryType entries[], int* entryCount)
      }
      else // import aborted
      {
-         printf(YELLOWFORMATSTRING, "import cancelled\n");
+         printf(YELLOWFORMATSTRING, "Import cancelled\n");
      }
      fclose(importFile);
      printf("Press any key to return to manage data menu\n");
