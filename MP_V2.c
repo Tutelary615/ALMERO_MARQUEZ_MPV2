@@ -16,16 +16,6 @@ John Thomas Marquez, DLSU ID# 12413445
 #include <conio.h>
 #include "MP_HEADER.h"
 
-// TO REMOVE 
-void 
-printStringASCII(char str[])
-{
-    for (int i = 0; i <= strlen(str); i++)
-    {
-        printf("%d.", str[i]);
-    }
-}
-
 /* initString sets all the characters in a string to '\0'
    @param str - string to be initialized
 */
