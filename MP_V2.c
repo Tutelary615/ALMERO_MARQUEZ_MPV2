@@ -1490,7 +1490,7 @@ getFilename(string30 filename, char* charAfterInput)
     fgets(filename, 31, stdin); 
     if (strlen(filename) == 30)
     {
-        *charAfterInput = getc(stdin); // 
+        *charAfterInput = getc(stdin);
     }
     fflush(stdin);
 }
@@ -2033,6 +2033,8 @@ findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPa
  					index = i;
  					found = true;	
  				}
+ 	
+ 	return index;
 }
 
 int
