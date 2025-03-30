@@ -241,6 +241,7 @@ manageDataMenu(int entryCount)
         upperBound = 3;
     }
     printf("Select an option from the menu above\n");
+    printf("Select an option from the menu above\n");
     choice = getAndValidateMenuInput(1, upperBound);
     return choice;
 }
@@ -259,7 +260,7 @@ translateMenu()
     printMenu(options, 3);
     upperBound = 3;
     
-    printf("Select and option from the menu above\n");
+    printf("Select an option from the menu above\n");
     choice = getAndValidateMenuInput(1, upperBound);
     return choice;
 }
@@ -2215,7 +2216,7 @@ translateFile(entryType sourceEntries[], int sourceEntriesCount)
 			for (i = 0; i < n_words; i++)
 			{
 				strcpy(keyPair.translation, tokens[i]);
-				keyEntryIndex = findKeyEntry(sourceEntries, sourceEntriesCount, keyPair);
+				keyEntryIndex = findKeyEntry(sourceEntries, n_sourceEntries, keyPair);
 		
 				if (keyEntryIndex != -1)
 				{
@@ -2253,7 +2254,7 @@ translateFile(entryType sourceEntries[], int sourceEntriesCount)
 			if (wordsRead > 0)
 				printf("%c", ch);
 		}
-			
+	    
 		printf("\n");
 		printf("Would you like to translate another text file?\n");			
 		
