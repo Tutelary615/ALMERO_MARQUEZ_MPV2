@@ -46,31 +46,33 @@ setEntryData(entryType* entry)
 
 /* getInteger gets an integer input
    @param num - address where integer input is stored
-   @return true if a valid integer was entered and false otherwise
+   @return false if the only the newline character was entered and true otherwise
 */
 bool 
 getInteger(int* num)
 {
-    char firstCharacterEntered;
-    char lastCharacterAfterNum;
-    bool isInputValid = false;
-
-    firstCharacterEntered = getc(stdin);
-
-    if (firstCharacterEntered != '\n')
+    char firstCharEntered;
+    char charAfterNum;
+    bool isThereInput = false;
+    int initialValue = *num;
+    
+    firstCharEntered = getc(stdin);
+    
+    if (firstCharEntered != '\n')
     {
-        ungetc(firstCharacterEntered, stdin);
+        ungetc(firstCharEntered, stdin);
         scanf("%d", num);
-        lastCharacterAfterNum = getc(stdin);
+        charAfterNum = getc(stdin);
+        isThereInput = true;
     }
 
-    if (lastCharacterAfterNum == '\n')
+    if (charAfterNum != '\n')
     {
-        isInputValid = true;
+        *num = initialValue;
     }
     fflush(stdin);
     
-    return isInputValid;
+    return isThereInput;
 }
 
 /* isCharInSet checks if a character is among a set of characters
@@ -78,7 +80,6 @@ getInteger(int* num)
    @param charSet - string consisting of valid characters
    @return true if the character bebing checked is among the set of characters
            and false otherwise
-    Pre-condition 
 */
 bool 
 isCharInSet(char charToCheck, char charSet[])
@@ -120,17 +121,23 @@ getAndValidateCharInput(char validCharacters[])
    @param upperBound - the largest valid integer
    @param input - the number entered
    @return true if the input is valid and false otherwise
+   Pre-condition - input is initialized to a value not within the range (less than lowerBound or greater than upperBound)
 */
 bool
-isMenuInputValid(bool isInputInt, int lowerBound, int upperBound, int input)
+isMenuInputValid(bool isThereInput, int lowerBound, int upperBound, int input)
 {
 	bool isValid = true;
 
-	if (!isInputInt || input < lowerBound || input > upperBound)
+	if (!isThereInput)
 	{
-		printf(REDFORMATSTRING, "Entered number is invalid, try again\n");
+		printf(REDFORMATSTRING, "No input\n");
 		isValid = false;
 	}
+    else if (input < lowerBound || input > upperBound)
+    {
+        printf(REDFORMATSTRING, "Input is invalid\n");
+        isValid = false;
+    }
 		
 	return isValid;
 }
@@ -144,13 +151,14 @@ int
 getAndValidateMenuInput(int lowerBound, int upperBound)
 {
     int choice;
-    bool isInputInt;
+    bool isThereInput;
     do
 	{
+        choice = upperBound + 1;
         printf("Enter choice: ");
-		isInputInt = getInteger(&choice);
+		isThereInput = getInteger(&choice);
 				
-	} while (!isMenuInputValid(isInputInt, 1, upperBound, choice));
+	} while (!isMenuInputValid(isThereInput, 1, upperBound, choice));
 	return choice;
 }
 
@@ -210,33 +218,34 @@ mainMenu()
 	return choice;
 }
 
-/* manageDataMenu contains all functions related to the "Manage Data" menu 
+/* manageDataMenu contains all functions for to the "Manage Data" menu (printing, getting input, and input validation)
    @param entryCount - number of entries initialized
    @return number corresponding to option selected
 */
 int 
 manageDataMenu(int entryCount)
 {
-    string30 options[10] = {"Add Entry", "Import Data", "Add Translations", "Delete Entry", "Delete Translation",
+    string30 optionsBeforeFirstEntry[3] = {"Add Entry", "Import Data", "Exit"};
+    string30 optionsAfterFirstEntry[10] = {"Add Entry", "Import Data", "Add Translations", "Delete Entry", "Delete Translation",
                             "Display All Entries", "Search by Word", "Search By Translation", "Export Data", "Exit"};
     int choice;
     int upperBound;
     if (entryCount > 0)
     {
-        printMenu(options, 10);
+        printMenu(optionsAfterFirstEntry, 10);
         upperBound = 10;
     }
     else
     {
-        printMenu(options, 2);
-        upperBound = 2;
+        printMenu(optionsBeforeFirstEntry, 3);
+        upperBound = 3;
     }
-    printf("Select and option from the menu above\n");
+    printf("Select an option from the menu above\n");
     choice = getAndValidateMenuInput(1, upperBound);
     return choice;
 }
 
-/* manageDataMenu contains all functions related to the "Manage Data" menu 
+/* manageDataMenu contains all functions related to the "Translate" menu (printing, getting input, and input validation)
    @param entryCount - number of entries initialized
    @return number corresponding to option selected
 */
@@ -874,6 +883,7 @@ addEntry(entryType entries[], int* entryCount)
    @param transKey - translation of highlighted pair
    @param indexesToPrint - array containing the indexes of the entries to be printed
    @param entriesToPrintCount - number of entries to print
+   Pre-condition: langKey and transKey is not null
 */
 void 
 printEntriesAsMenuWithHighlight(entryType entries[], string20 langKey, string20 transKey, int indexesToPrint[], int entriesToPrintCount)
@@ -974,6 +984,7 @@ addTranslation(entryType entries[], int entryCount)
    rearranges the entry to fill the space of the deleted pair
    @param entry - address of entry to be modified
    @param indexOfPairToRemove - the index of the pair to be deleted
+   Pre-condition: there is at least one language-translation pair in entry
 */
 void 
 removeLTPair(entryType* entry, int indexOfPairToRemove)
@@ -994,6 +1005,7 @@ removeLTPair(entryType* entry, int indexOfPairToRemove)
    @param entries - array of entries to be modified
    @param delIndex - index of entry to delete
    @param entryCount - address containing the number of initialized entries
+   Pre-condition: the value stored in entryCount is more than 0
 */
 
 void removeEntry(entryType entries[], int delIndex, int* entryCount)
@@ -1011,6 +1023,7 @@ void removeEntry(entryType entries[], int delIndex, int* entryCount)
 /* contains all functions for the "Delete Translation" feature
    @param entries - array of entries
    @param entryCount - address containing number of initialized entries
+   Pre-condition: the value stored in entryCount is more than 0
 */
 void 
 deleteTranslation(entryType entries[], int *entryCount)
@@ -1090,6 +1103,7 @@ deleteTranslation(entryType entries[], int *entryCount)
 /* contains all functions for the "Delete Entry" feature
    @param entries - array of entries
    @param entryCount - address containing number of initialized entries
+   Pre-condition: the value stored in entryCount is more than 0
 */
 void
 deleteEntry(entryType entries[], int *entryCount)
@@ -1161,6 +1175,7 @@ printEntryWithHighlightWord(entryType entry, string20 keyWord)
 /* displayAllEntries displays entries one by one
    @param entries - array of entries to display
    @param entryCount - number of entries to be printed
+   Pre-condition: entryCount is more than 0
 */
 void 
 displayAllEntries(entryType entries[], int entryCount)
@@ -1217,7 +1232,8 @@ displayAllEntries(entryType entries[], int entryCount)
    @param numberOfEntriesToDisplay - number of entries to be displayed
    @param langKey - language of pair to highlight
    @param wordKey - word to highlight
-   Pre-condition: transKey is not null
+   Pre-condition: transKey is not null,
+                  there is at least one element in indexesOfEntriesToDisplay
 */
 void 
 displaySpecificEntries(entryType entries[], int indexesOfEntriesToDisplay[], int numberOfEntriesToDisplay, string20 langKey, string20 wordKey)
@@ -1432,7 +1448,7 @@ readEntry(FILE* file, entryType* bufferEntry)
 /* getFilename gets user input for filename
    @param filename - string where filename entered will be stored
    @param charAfterInput - address where the first character read from input stream after
-                          entered word or language (if any) will be stored
+                           entered filename (if any) will be stored
 */
 void 
 getFilename(string30 filename, char* charAfterInput)
@@ -1498,7 +1514,7 @@ isThereProhibitedCharInFilename(string30 filename)
   
     @param filename - filename being checked 
     @param charAfterFilename - the first character read from input stream after
-                               entered word or language (if any)
+                               entered filename (if any)
     @return true if the filename is valid and false otherwise
 */
 bool
@@ -1545,10 +1561,8 @@ isNewTextFilenameValid(string30 filename, char charAfterFilename)
     - a file with the filename entered exists
   
     @param filename - filename being checked 
-    @param - the first character read from input stream after
-             entered word or language (if any)
     @param charAfterFilename - the first character read from input stream after
-                               entered word or language (if any)
+                               entered filename (if any)
     @return true if the filename is valid and false otherwise
 */
 bool
@@ -1752,34 +1766,45 @@ manageData()
     {
         choice = manageDataMenu(entryCount);
 
-        switch(choice)
+        if (choice == 1)
         {
-            case 1: addEntry(entries, &entryCount);
-                    break;
-            
-            case 2: importData(entries, &entryCount);
-                    break;
-            
-            case 3: addTranslation(entries, entryCount);
-                    break;
-            
-            case 4: deleteEntry(entries, &entryCount);
-                    break;
-            
-            case 5: deleteTranslation(entries, &entryCount);
-                    break;
-
-            case 6: displayAllEntries(entries, entryCount);
-                    break;
-
-            case 7: searchWord(entries, entryCount);
-                    break;
-            
-            case 8: searchTranslation(entries, entryCount);
-                    break;
-            
-            case 9: exportData(entries, entryCount);
-                    break;
+            addEntry(entries, &entryCount);
+        }
+        else if (choice == 2)
+        {
+            importData(entries, &entryCount);
+        }
+        else if (choice == 3 && entryCount == 0)
+        {
+            choice = 10;
+        }
+        else if (choice == 3)
+        {
+            addTranslation(entries, entryCount);
+        }
+        else if (choice == 4)
+        {
+            deleteEntry(entries, &entryCount);
+        }
+        else if (choice == 5)
+        {
+            deleteTranslation(entries, &entryCount);
+        }
+        else if (choice == 6)
+        {
+            displayAllEntries(entries, entryCount);
+        }
+        else if (choice == 7)
+        {
+            searchWord(entries, entryCount);
+        }
+        else if (choice == 8)
+        {
+            searchTranslation(entries, entryCount);
+        }
+        else if (choice == 9)
+        {
+            exportData(entries, entryCount);
         }
     } while (choice != 10);
 }
@@ -1841,6 +1866,12 @@ tokenize(string150 textInput, string50 tokens[], int* tokenCount)
     memcpy(tokens, tempTokens, sizeof(tempTokens));
 }
 
+/* detokenize concatinates the elements of a string array into one string
+   with a space seperating each element
+   @param result - the string that will contained the concatinated elements of the array
+   @param tokens - the strings that will be concatinated
+   @param tokenCount - the number of tokens to be concatinated
+*/
 void
 detokenize(string150 result, string50 tokens[], int tokenCount)
 {
@@ -1859,8 +1890,12 @@ detokenize(string150 result, string50 tokens[], int tokenCount)
     }
 }
 
+/* formatTextToTranslate formats a string such that all letters are lowercase and 
+   and it doesn't end with a newline character
+   @param text - string to be modified
+*/
 void
-formatText(string150 text)
+formatTextToTranslate(string150 text)
 {
     int i;
     int lengthOfText = strlen(text);
@@ -1876,8 +1911,20 @@ formatText(string150 text)
     }
 }
 
+/* isTextToTranslateValid checks is a string input for translation is valid
+   
+ conditions for validity
+  - string input does not exceed 150 characters
+  - string input has at least 1 character
+
+ @param text - string to be checked
+ @param charAfterText -  first character read from input stream after
+                         entered string (if any)
+ @return true if the text is valid and false otherwise
+ Pre-condition: charAfterText is initialized to newline character before input
+*/
 bool
-isTextValid(string150 text, char charAfterText)
+isTextToTranslateValid(string150 text, char charAfterText)
 {
     bool isValid = true;
     if (charAfterText != '\n')
@@ -1893,8 +1940,14 @@ isTextValid(string150 text, char charAfterText)
     return isValid;
 }
 
+/* getTextToTranslate gets user input for translation
+   @pram text - string where text for translation will be stored
+   @param charAfterInput - address where the first character read from input stream after
+                           entered text (if any)
+   Pre-conditon: charAfterInput is initialized to newline character before input
+*/
 void
-getText(string150 text, char* charAfterInput)
+getTextToTranslate(string150 text, char* charAfterInput)
 {
 	fgets(text, 151, stdin);
     if (strlen(text) == 150)
@@ -1904,6 +1957,7 @@ getText(string150 text, char* charAfterInput)
     fflush(stdin);
 }
 
+/*have equivalent function*/
 int
 findKeyEntry(entryType sourceEntries[], int n_sourceEntries, LTPairType keyPair)
 {
@@ -1941,8 +1995,13 @@ findTransInEntry(entryType keyEntry, string20 destLang)
 	return index;
 }
 
+/* translateTextInput contains all the functions for the "Translate Text Input" function
+   @param sourceEntries - entries that will be used for translation
+   @param sourceEntriesCount - the number of entries that will be used for translation
+   Pre-condition: sourceEntriesCount is greater than 0
+*/
 void
-translateInput(entryType sourceEntries[], int n_sourceEntries)
+translateTextInput(entryType sourceEntries[], int sourceEntriesCount)
 {
 	string20 sourceLang;
 	string150 input;
@@ -1988,9 +2047,9 @@ translateInput(entryType sourceEntries[], int n_sourceEntries)
 	    	initString(input);
 	    	charAfterText = '\n';
 	        printf("Enter text to translate: ");
-			getText(input, &charAfterText);
-			formatText(input);
-		} while (!isTextValid(input, charAfterText));
+			getTextToTranslate(input, &charAfterText);
+			formatTextToTranslate(input);
+		} while (!isTextToTranslateValid(input, charAfterText));
 	    
 	    strcpy(original, input);
 	    
@@ -2000,7 +2059,7 @@ translateInput(entryType sourceEntries[], int n_sourceEntries)
 		for (i = 0; i < n_words; i++)
 		{
 			strcpy(keyPair.translation, tokens[i]);
-			keyEntryIndex = findKeyEntry(sourceEntries, n_sourceEntries, keyPair);
+			keyEntryIndex = findKeyEntry(sourceEntries, sourceEntriesCount, keyPair);
 	
 			if (keyEntryIndex != -1)
 			{
@@ -2028,6 +2087,13 @@ translateInput(entryType sourceEntries[], int n_sourceEntries)
 	printf("\n");
 }
 
+/* seperateSentences seperates the text into text file into sentences using
+   period (.), exclamation point (!), or question mark as delimeters
+   @param textFile - address of text file containing the text to 2 tokenized
+   @param sentences - array where the seperated senteces would be stored
+   @param sentenceCount - address that will store the number of sentences read
+   Pre-condition: there is at least one sentence that can be read
+*/
 void
 separateSentences(FILE *textFile, string150 sentences[], int *sentenceCount)
 {
@@ -2058,8 +2124,13 @@ separateSentences(FILE *textFile, string150 sentences[], int *sentenceCount)
 	memcpy(sentences, tempSentences, sizeof(tempSentences));
 }
 
+/* translateFile contains all the function for the "Translate Text File" feature
+   @param sourceEntries - entries that will be used for translation
+   @param sourceEntriesCount - number of entries that will be used for translation
+   Pre-condition: sourceEntriesCount is greater than 0
+*/
 void
-translateFile(entryType sourceEntries[], int n_sourceEntries)
+translateFile(entryType sourceEntries[], int sourceEntriesCount)
 {
 	FILE *textFile;
 	FILE *outputFile;
@@ -2144,7 +2215,7 @@ translateFile(entryType sourceEntries[], int n_sourceEntries)
 			for (i = 0; i < n_words; i++)
 			{
 				strcpy(keyPair.translation, tokens[i]);
-				keyEntryIndex = findKeyEntry(sourceEntries, n_sourceEntries, keyPair);
+				keyEntryIndex = findKeyEntry(sourceEntries, sourceEntriesCount, keyPair);
 		
 				if (keyEntryIndex != -1)
 				{
@@ -2191,6 +2262,8 @@ translateFile(entryType sourceEntries[], int n_sourceEntries)
 	printf("\n");
 }
 
+/* translate contains all features under "Translate"
+*/
 void 
 translate()
 {
@@ -2231,7 +2304,7 @@ translate()
 		
         switch(choice)
         {
-            case 1: translateInput(sourceEntries, n_sourceEntries);
+            case 1: translateTextInput(sourceEntries, n_sourceEntries);
                     break;
             
             case 2: translateFile(sourceEntries, n_sourceEntries);
