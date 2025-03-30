@@ -1,3 +1,12 @@
+/*********************************************************************************************************
+This is to certify that this project is our own work, based on our personal efforts in studying and applying the concepts
+learned. We have constructed the functions and their respective algorithms and corresponding code by ourselves. The
+program was run, tested, and debugged by our own efforts. We further certify that we have not copied in part or whole or
+otherwise plagiarized the work of other students and/or persons.
+ Antonio Alvaro Almero, DLSU ID# 12410136
+ John Thomas Marquez, DLSU ID# 12413445
+*********************************************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1492,7 +1501,7 @@ getFilename(string30 filename, char* charAfterInput)
     fgets(filename, 31, stdin); 
     if (strlen(filename) == 30)
     {
-        *charAfterInput = getc(stdin); // 
+        *charAfterInput = getc(stdin);
     }
     fflush(stdin);
 }
@@ -1513,7 +1522,7 @@ formatFilename(string30 filename)
 
 /* isThereProhibitedCharInFilename checks if a filename contains a prohibited character
    @param filename - filename being checked
-   @return true if the filenmae contains a prohibited character and false otherwise
+   @return true if the filename contains a prohibited character and false otherwise
    Pre-condition: filename is already formatted using formatFilename
 */
 bool
@@ -1541,7 +1550,7 @@ isThereProhibitedCharInFilename(string30 filename)
 /* isNewTextFilenameValid checks if an entered filename (type .txt) is valid
    and prints errors messages when invalid
    
-   condidions for validity:
+   conditions for validity:
     - filename does not exceed 30 characters
     - filename contains no prohibited characters
     - filename ends with ".txt" file extension
@@ -2035,7 +2044,6 @@ findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPa
  					index = i;
  					found = true;	
  				}
-    return index;
 }
 
 int
