@@ -2026,15 +2026,13 @@ findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPa
 	bool found = false;
 	
 	for (i = 0; i < sourceEntriesCount && !found; i++)
-    {
-        if (searchForLTPair(sourceEntries[i], keyPair.language, keyPair.translation) != -1)
-        {
-            index = i;
-            found = true;
-        }
-    }
-
-	return index;
+ 		for (j = 0; j < sourceEntries[i].pairCount && !found; j++)
+ 			if (strcmp(keyPair.language, sourceEntries[i].pairs[j].language) == 0 &&
+ 				strcmp(keyPair.translation, sourceEntries[i].pairs[j].translation) == 0)
+ 				{
+ 					index = i;
+ 					found = true;	
+ 				}
 }
 
 int
