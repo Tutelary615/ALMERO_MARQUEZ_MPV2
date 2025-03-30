@@ -2021,7 +2021,7 @@ getTextToTranslate(string150 text, char* charAfterInput)
 int
 findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPair)
 {
-	int i, j;
+	int i;
 	int index = -1;
 	bool found = false;
 	
