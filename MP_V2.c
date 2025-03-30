@@ -196,27 +196,6 @@ isThereSpaceInString(char str[])
     return isThereSpace;
 }
 
-/* mainMenu contains all functions related to the main menu of the program 
-   @return number corresponding to option selected
-*/
-int
-mainMenu()
-{
-	int choice;
-	bool isChoiceValid;
-	string30 options[3] = {"Manage Data", "Translate Menu", "Exit"};
-	
-	printMenu(options, 3);
-	
-	do
-	{
-		printf("Select an option from the menu above: ");
-		isChoiceValid = getInteger(&choice);
-				
-	} while (!isMenuInputValid(isChoiceValid, 1, 3, choice));
-    
-	return choice;
-}
 
 /* manageDataMenu contains all functions for to the "Manage Data" menu (printing, getting input, and input validation)
    @param entryCount - number of entries initialized
@@ -225,9 +204,9 @@ mainMenu()
 int 
 manageDataMenu(int entryCount)
 {
-    string30 optionsBeforeFirstEntry[3] = {"Add Entry", "Import Data", "Exit"};
+    string30 optionsBeforeFirstEntry[3] = {"Add Entry", "Import Data", "Exit"}; // if there is no entry initialized, only these features would be presented
     string30 optionsAfterFirstEntry[10] = {"Add Entry", "Import Data", "Add Translations", "Delete Entry", "Delete Translation",
-                            "Display All Entries", "Search by Word", "Search By Translation", "Export Data", "Exit"};
+                            "Display All Entries", "Search by Word", "Search By Translation", "Export Data", "return to main menu"}; 
     int choice;
     int upperBound;
     if (entryCount > 0)
@@ -240,7 +219,7 @@ manageDataMenu(int entryCount)
         printMenu(optionsBeforeFirstEntry, 3);
         upperBound = 3;
     }
-    printf("Select an option from the menu above\n");
+    printf("\n");
     printf("Select an option from the menu above\n");
     choice = getAndValidateMenuInput(1, upperBound);
     return choice;
@@ -253,7 +232,7 @@ manageDataMenu(int entryCount)
 int 
 translateMenu()
 {
-    string30 options[3] = {"Translate Text Input", "Translate Text File", "Exit"};
+    string30 options[3] = {"Translate Text Input", "Translate Text File", "Return to main menu"};
     int choice;
     int upperBound;
     
@@ -275,8 +254,13 @@ getTransOrLang(string20 str, char* charAfterInput)
 {
 	fgets(str, 21, stdin);
     if (strlen(str) == 20)
-    {
-        *charAfterInput = getc(stdin);
+    {   
+        /*used to check string length,
+          must be newline character if the 
+          maximum number of characters was entered
+          and unchanged if less
+        */
+        *charAfterInput = getc(stdin);  
     }
     fflush(stdin);
 }
@@ -406,7 +390,7 @@ formatLanguage(string20 language)
 {
     int i;
     int lengthOfLanguage = strlen(language);
-    if (language[lengthOfLanguage - 1] == '\n')
+    if (language[lengthOfLanguage - 1] == '\n') // removes the newline character from end of string read by fgets
     {
         language[lengthOfLanguage - 1] = '\0';
         lengthOfLanguage--;
@@ -428,7 +412,7 @@ formatTranslation(string20 translation)
 {
     int i;
     int lengthOfTranslation = strlen(translation);
-    if (translation[lengthOfTranslation - 1] == '\n')
+    if (translation[lengthOfTranslation - 1] == '\n')  // removes the newline character from end of string read by fgets
     {
         translation[lengthOfTranslation - 1] = '\0';
         lengthOfTranslation--;   
@@ -453,6 +437,7 @@ sortIntraEntry(entryType* entry)
     int j;
     LTPairType temp;
 
+    // bubble sort algorithim was used
     for (i = 0; i < entry->pairCount - 1; i++)
     {
         for (j = 0; j < entry->pairCount - 1 - i; j++)
@@ -590,7 +575,7 @@ searchForLTPair(entryType entry, string20 langKey, string20 transKey) // FOR CHE
     int startIndex = 0;
     int endIndex = entry.pairCount - 1;
 
-    while (strcmp(langKey, entry.pairs[startIndex].language) == 1 && startIndex < entry.pairCount) 
+    while (strcmp(langKey, entry.pairs[startIndex].language) == 1 && startIndex < entry.pairCount)
     {
         startIndex++;
     }
@@ -686,7 +671,7 @@ printAllEntriesAsMenu(entryType entries[], int entryCount)
     {
         printEntry(entries[i], stdout);
         printf("Pair count = %d\n", entries[i].pairCount);
-        printf("\033[0;33m - %d\033[0m\n", i + 1);
+        printf("\033[0;33m - %d\033[0m\n", i + 1); // number corresponding  each pair used for selection
         printf("\n");
     }
 }
@@ -835,6 +820,16 @@ addEntry(entryType entries[], int* entryCount)
     bool isNewEntryInitialized;
     bool willAddTranslation;
 
+    printf("Add Entry\n");
+    printf("\n");
+
+    printf("All inputs for language and translation must:\n");
+    printf(" - Must not exceed 20 characters\n");
+    printf(" - Must have at least oen character\n");
+    printf(" - not include spaces\n");
+    printf("\n");
+    printf("Inputs are not case sensitive and will be formatted automatically\n");
+    printf("\n");
    if (*entryCount < MAX_ENTRIES)
    {
         entries[*entryCount].pairCount = 0;
@@ -848,12 +843,13 @@ addEntry(entryType entries[], int* entryCount)
    }
 
    if (isNewEntryInitialized)
-   {
+   {    
         do
         {
+            printf("\n");
             printf("Would you like to add another translation?\n");
             willAddTranslation = isOperationConfirmed();
-
+            printf("\n");
             if (willAddTranslation)
             {
                 addLTPair(&entries[*entryCount - 1]);
@@ -874,7 +870,7 @@ addEntry(entryType entries[], int* entryCount)
     printf("Press any key to return to manage data menu\n");
     getch();
     fflush(stdin);
-
+    printf("\n");
 }
 
 /* printEntriesAsMenuWithHighlight prints entries formatted as a menu with a 
@@ -915,7 +911,14 @@ addTranslation(entryType entries[], int entryCount)
     int indexesOfEntriesWithKey[MAX_ENTRIES];
     int indexOfEntryToEdit;
     bool willAddAnotherTranslation;
-
+    
+    printf("Add Translation\n");
+    printf("\n");
+    printf("All inputs for language and translation (for search and data modification) must:\n");
+    printf(" - Must not exceed 20 characters\n");
+    printf(" - Must have at least one character\n");
+    printf(" - not include spaces\n");
+    printf("\n");
     do
 	{
 		charAfterLang = '\n';
@@ -947,20 +950,19 @@ addTranslation(entryType entries[], int entryCount)
     {
         printf(REDFORMATSTRING, "The word and corresponding language are not found in any entry\n");
         printf("You must first initialize a new entry\n");
-        printf("Press any key to continue\n");
-        getch();
     }
 
     if (entriesWithKeyCount > 0 && entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY)
     {   
         do
         {   
+            printf(DIVIDER);
             printEntry(entries[indexOfEntryToEdit], stdout);
-            printf("\n");
+            printf(DIVIDER);
             printf("Enter language and translation to be added\n");
             addLTPair(&entries[indexOfEntryToEdit]);
             sortIntraEntry(&entries[indexOfEntryToEdit]);
-
+            printf("\n");
             if (entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY)
             {
                 printf("Would you like to add another translation\n");
@@ -969,16 +971,19 @@ addTranslation(entryType entries[], int entryCount)
         } while (willAddAnotherTranslation && entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY);
 
         sortInterEntry(entries, entryCount);
+        printf("\n");
+        printEntry(entries[indexOfEntryToEdit], stdout);
+        printf("\n");
     }
     
     if (entriesWithKeyCount > 0 && entries[indexOfEntryToEdit].pairCount == MAX_PAIRS_PER_ENTRY)
     {
-        printf(YELLOWFORMATSTRING, "The maximum number of translations has been reached\n");
-        printf("Press any key to continue\n");
-        getch();
+        printf(YELLOWFORMATSTRING, "The maximum of 10 translations has been reached\n");
     }
-    
-	   
+    printf("Press any key to return to \"Manage Data\" menu\n");
+    getch();
+    fflush(stdin);
+    printf("\n");
 }
 
 /* removeLTPair deletes a specified language-translation pair and 
@@ -1033,6 +1038,9 @@ deleteTranslation(entryType entries[], int *entryCount)
     int indexOfPairToDelete;
     bool willDeleteAnother;
     bool isThereValidInteger;
+    
+    printf("Delete Translation\n");
+    printf("\n");
     printf("Select an entry to delete from.\n");
     printf("\n");
 
@@ -1052,9 +1060,10 @@ deleteTranslation(entryType entries[], int *entryCount)
     {
         do
         {
+            printf(DIVIDER);
             printEntryAsMenu(entries[indexOfEntryToEdit]);
             printf("\n");
-            printf("Select a translation to delete: \n");
+            printf("Enter the number of the translation you want to delete: ");
             isThereValidInteger = getInteger(&indexOfPairToDelete);
 
             if (isMenuInputValid(isThereValidInteger, 1, entries[indexOfEntryToEdit].pairCount, indexOfPairToDelete))
@@ -1110,7 +1119,8 @@ void
 deleteEntry(entryType entries[], int *entryCount)
 {
     int delIndex;
-	
+	printf("Delete Entry\n");
+    printf("\n");
 	printf("Select an entry to delete.\n");
 	printf("\n");
 	
@@ -1193,23 +1203,23 @@ displayAllEntries(entryType entries[], int entryCount)
 
             if (entryCount == 1)
             {
-                printf("Press 'e' to exit\n");
+                printf("Press 'e' to  return to \"Manage Data\" menu\n");
                 choice = getAndValidateCharInput("e");   
             }
 
             else if (indexOfEntryBeingDisplayed == 0)
             {
-                printf("Press 'n' to view next entry or 'e' to exit\n");
+                printf("Press 'n' to view next entry or 'e' to return to \"Manage Data\" menu\n");
                 choice = getAndValidateCharInput("ne");
             }
             else if (indexOfEntryBeingDisplayed == entryCount - 1)
             {
-                printf("Press 'p' to view previous entry or 'e' to exit\n");
+                printf("Press 'p' to view previous entry or 'e' to return to \"Manage Data\" menu\n");
                 choice = getAndValidateCharInput("pe");
             }
             else
             {
-                printf("Press 'p' to view previous entry, 'n' to view next entry, or 'e' to exit\n");
+                printf("Press 'p' to view previous entry, 'n' to view next entry, or 'e' to return to \"Manage Data\" menu\n");
                 choice = getAndValidateCharInput("pne");
             }
 
@@ -1223,7 +1233,7 @@ displayAllEntries(entryType entries[], int entryCount)
             }
 
         } while (choice != 'e');
-
+        printf("\n");
 }
 
 /* displaySpecificEntries displays a set of entries one by one
@@ -1237,43 +1247,43 @@ displayAllEntries(entryType entries[], int entryCount)
                   there is at least one element in indexesOfEntriesToDisplay
 */
 void 
-displaySpecificEntries(entryType entries[], int indexesOfEntriesToDisplay[], int numberOfEntriesToDisplay, string20 langKey, string20 wordKey)
+displaySpecificEntries(entryType entries[], int indexesOfEntriesToDisplay[], int numberOfEntriesToDisplay, string20 langKey, string20 transKey)
 {
     int indexOfEntryBeingDisplayed = 0;
     char choice;
    
         do
         {
-            if (langKey == NULL)
+            if (langKey == NULL) // only translation (regardless of language) is basis for highlighting
             {
-                printEntryWithHighlightWord(entries[indexesOfEntriesToDisplay[indexOfEntryBeingDisplayed]], wordKey);
+                printEntryWithHighlightWord(entries[indexesOfEntriesToDisplay[indexOfEntryBeingDisplayed]], transKey);
             }
-            else
+            else // a specific language-translation pair will be highlighted
             {
-                printEntryWithHighlightedPair(entries[indexesOfEntriesToDisplay[indexOfEntryBeingDisplayed]], langKey, wordKey);
+                printEntryWithHighlightedPair(entries[indexesOfEntriesToDisplay[indexOfEntryBeingDisplayed]], langKey, transKey);
             }
             printf("(%d/%d)\n", (indexOfEntryBeingDisplayed + 1), numberOfEntriesToDisplay);
             printf("\n");
 
             if (numberOfEntriesToDisplay == 1)
             {
-                printf("Press 'e' to exit\n");
+                printf("Press 'e' to return to \"Manage Data\" menu\n");
                 choice = getAndValidateCharInput("e");   
             }
 
             else if (indexOfEntryBeingDisplayed == 0)
             {
-                printf("Press 'n' to view next entry or 'e' to exit\n");
+                printf("Press 'n' to view next entry or 'e' to return to \"Manage Data\" menu\n");
                 choice = getAndValidateCharInput("ne");
             }
             else if (indexOfEntryBeingDisplayed == numberOfEntriesToDisplay - 1)
             {
-                printf("Press 'p' to view previous entry or 'e' to exit\n");
+                printf("Press 'p' to view previous entry or 'e' to return to \"Manage Data\" menu\n");
                 choice = getAndValidateCharInput("pe");
             }
             else
             {
-                printf("Press 'p' to view previous entry, 'n' to view next entry, or 'e' to exit\n");
+                printf("Press 'p' to view previous entry, 'n' to view next entry, or 'e' to return to \"Manage Data\" menu\n");
                 choice = getAndValidateCharInput("pne");
             }
 
@@ -1321,22 +1331,30 @@ searchEntryForKeyTrans(entryType entry, string20 transKey)
 void 
 searchWord(entryType entries[], int entryCount)
 {
-    string20 keyWord;
+    string20 keyTrans;
     int entriesWithKeyWordIndexes[MAX_ENTRIES];
     int entriesWithKeyWordCount = 0;
     int i;
     char charAfterKeyWord;
+
+    printf("Search Word\n");
+    printf("\n");
+    printf("Seach inputs for word must:\n");
+    printf(" - Must not exceed 20 characters\n");
+    printf(" - Must have at least one character\n");
+    printf(" - not include spaces\n");
+    printf("\n");
     do
     {
         charAfterKeyWord = '\n';
         printf("Enter word to search: ");
-        getTransOrLang(keyWord, &charAfterKeyWord);
-        formatTranslation(keyWord);
-    } while (!isTranslationValid(keyWord, charAfterKeyWord));
+        getTransOrLang(keyTrans, &charAfterKeyWord);
+        formatTranslation(keyTrans);
+    } while (!isTranslationValid(keyTrans, charAfterKeyWord));
     
     for (i = 0; i < entryCount; i++)
     {
-        if (searchEntryForKeyTrans(entries[i], keyWord) != -1)
+        if (searchEntryForKeyTrans(entries[i], keyTrans) != -1)
         {
             entriesWithKeyWordIndexes[entriesWithKeyWordCount] = i;
             entriesWithKeyWordCount++;
@@ -1346,7 +1364,7 @@ searchWord(entryType entries[], int entryCount)
     if (entriesWithKeyWordCount > 0)
     {
         displaySpecificEntries(entries, entriesWithKeyWordIndexes, 
-                               entriesWithKeyWordCount, NULL, keyWord);
+                               entriesWithKeyWordCount, NULL, keyTrans);
     }
     else
     {
@@ -1355,7 +1373,7 @@ searchWord(entryType entries[], int entryCount)
         getch();
         fflush(stdin);
     }
-    
+    printf("\n");
 }
 
 /* searchTranslation contains all functions for the "Search Translation" feature
@@ -1367,31 +1385,39 @@ void
 searchTranslation(entryType entries[], int entryCount)
 {
     string20 langKey;
-    string20 wordKey;
+    string20 transKey;
     char charAfterLangKey;
-    char charAfterWordKey;
+    char charAfterTransKey;
     int entriesWithLTPairKeyIndexes[MAX_ENTRIES];
     int entriesWithLTPairKeyCount = 0;
     int i;
+    
+    printf("Search Translation\n");
+    printf("\n");
 
+    printf("Seach inputs for language and word must:\n");
+    printf(" - Must not exceed 20 characters\n");
+    printf(" - Must have at least one character\n");
+    printf(" - not include spaces\n");
+    printf("\n");
     do 
     {
         initString(langKey);
-        initString(wordKey);
+        initString(transKey);
         charAfterLangKey = '\n';
-        charAfterWordKey = '\n';
+        charAfterTransKey = '\n';
 
         printf("Enter language: ");
         getTransOrLang(langKey, &charAfterLangKey);
-        printf("Enter word: ");
-        getTransOrLang(wordKey, &charAfterWordKey);
+        printf("Enter translation: ");
+        getTransOrLang(transKey, &charAfterTransKey);
         formatLanguage(langKey);
-        formatTranslation(wordKey);
-    } while (!isLTPairValid(langKey, wordKey, charAfterLangKey, charAfterWordKey));
+        formatTranslation(transKey);
+    } while (!isLTPairValid(langKey, transKey, charAfterLangKey, charAfterTransKey));
 
     for (i = 0; i < entryCount; i++)
     {
-        if (searchForLTPair(entries[i], langKey, wordKey) != -1)
+        if (searchForLTPair(entries[i], langKey, transKey) != -1)
         {
             entriesWithLTPairKeyIndexes[entriesWithLTPairKeyCount] = i;
             entriesWithLTPairKeyCount++;
@@ -1401,28 +1427,30 @@ searchTranslation(entryType entries[], int entryCount)
     if (entriesWithLTPairKeyCount > 0)
     {
         displaySpecificEntries(entries, entriesWithLTPairKeyIndexes, 
-                               entriesWithLTPairKeyCount, langKey, wordKey);
+                               entriesWithLTPairKeyCount, langKey, transKey);
     }
     else
     {
         printf(YELLOWFORMATSTRING, "No matches found\n");
+    }
         printf("Press any key to return to \"Manage Data\" menu.\n");
         getch();
         fflush(stdin);
-    }
-    
+        printf("\n");
 }
 
 /* readEntry reads one entry from a file 
    @param file - text file where entry is read from
    @param bufferEntry - address where the entry read will be stored
-   Pre-condition: file is formatted correctly
+   Pre-condition: file is formatted,
+                  file exists,
+                  all languages and translations in file have at most 20 characters
 */
 bool
 readEntry(FILE* file, entryType* bufferEntry)
  {
      string50 readLine;
-     char* readResult;
+     char* readResult; //used to verify if an entry was read
      bufferEntry->pairCount = 0;
      int i = 0;
      bool wasEntryRead = false;
@@ -1458,7 +1486,7 @@ getFilename(string30 filename, char* charAfterInput)
     fgets(filename, 31, stdin); 
     if (strlen(filename) == 30)
     {
-        *charAfterInput = getc(stdin);
+        *charAfterInput = getc(stdin); // 
     }
     fflush(stdin);
 }
@@ -1572,27 +1600,27 @@ isExistingTextFilenameValid(string30 filename, char charAfterFilename, FILE* imp
     bool isValid = true;
     if (strlen(filename) == 0)
     {
-        printf(REDFORMATSTRING, "No filename was entered. Try again\n");
+        printf(REDFORMATSTRING, "No filename was entered\n");
         isValid = false;
     }
     else if (charAfterFilename != '\n')
     {
-        printf(REDFORMATSTRING, "File name entered contains more than 30 characters. Try again\n");
+        printf(REDFORMATSTRING, "File name entered contains more than 30 characters\n");
         isValid = false;
     }
     else if ((isThereProhibitedCharInFilename(filename)) || (strcmp(filename, ".txt") == 0))
     {
-        printf(REDFORMATSTRING, "File name entered is not valid. Try again\n");
+        printf(REDFORMATSTRING, "File name entered is not valid\n");
         isValid = false;
     }
     else if (strcmp((filename + strlen(filename) - 4), ".txt") != 0)
     {
-        printf(REDFORMATSTRING, "\".txt\" extension was not included in input. Try again\n");
+        printf(REDFORMATSTRING, "\".txt\" extension was not included in input\n");
         isValid = false;
     }
     else if (importFile == NULL)
     {
-        printf(REDFORMATSTRING, "File not found. Try again\n");
+        printf(REDFORMATSTRING, "File not found\n");
         isValid = false;   
     }
     
@@ -1629,10 +1657,12 @@ importData(entryType entries[], int* entryCount)
      char charAfterFilename;
      bool wasEntryRead;
      bool willImportEntry;
- 
+     printf("Import Data\n");
+     printf("\n");
      printf("Provide the file name of the text file (.txt) to import from\n");
      printf(" - include the \".txt\" file extension in input\n");
      printf(" - file name should not exceed 30 characters (including file extension)\n");
+     printf(" - only the \'.txt\" file extension is case sensitive\n");
      printf("\n");
     
      do
@@ -1678,6 +1708,10 @@ importData(entryType entries[], int* entryCount)
          {
              printf(YELLOWFORMATSTRING, "The maximum of 150 entries has been reached\n");
          }
+         else if (feof(importFile))
+         {
+            printf(YELLOWFORMATSTRING, "No more entries to import\n");
+         }
         
          
      }
@@ -1689,8 +1723,7 @@ importData(entryType entries[], int* entryCount)
      printf("Press any key to return to manage data menu\n");
      getch();
      fflush(stdin);
-    
-     
+     printf("\n");
  }
 
  /* exportData contains all functions for "Export Data" feature
@@ -1704,6 +1737,8 @@ exportData(entryType entries[], int entryCount)
     string30 filename;
     char charAfterFilename;
 
+    printf("Export Data\n");
+    printf("\n");
     printf("Provide filename of file where data will be exported to\n");
     printf(" - the file name must end in \".txt\"\n");
     printf(" - There must be at least 1 character before the \".txt\" extension\n");
@@ -1727,6 +1762,10 @@ exportData(entryType entries[], int entryCount)
     printf("   - & (ampersand)\n");
     printf("   - { (left brace)\n");
     printf("   - } (right brace)\n");
+
+    printf("\n");
+    printf(" - only the \".txt\" file extension is case sensitve\n");
+    printf(" - if a file with the provided filename already exists, its contents will be overwritten\n");
     
 
     printf("\n");
@@ -1754,7 +1793,10 @@ exportData(entryType entries[], int entryCount)
     {
         printf(YELLOWFORMATSTRING, "Export cancelled\n");
     }
-    
+    printf("Press any key to return to \"Manage Data\" menu\n");
+    getch();
+    fflush(stdin);
+    printf("\n");
 }
 
 void 
@@ -1765,8 +1807,12 @@ manageData()
     int entryCount = 0;
     do
     {
+        printf(DIVIDER);
+        printf("\n");
+        printf("Manage Data\n");
+        printf("\n");
         choice = manageDataMenu(entryCount);
-
+        printf(DIVIDER);
         if (choice == 1)
         {
             addEntry(entries, &entryCount);
@@ -1969,19 +2015,18 @@ getTextToTranslate(string150 text, char* charAfterInput)
 int
 findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPair)
 {
-	int i;
+	int i, j;
 	int index = -1;
 	bool found = false;
 	
 	for (i = 0; i < sourceEntriesCount && !found; i++)
-    {
-        if (searchForLTPair(sourceEntries[i], keyPair.language, keyPair.translation) != -1);
-        {
-            index = i;
-            found = true;
-        }
-    }
-
+ 		for (j = 0; j < sourceEntries[i].pairCount && !found; j++)
+ 			if (strcmp(keyPair.language, sourceEntries[i].pairs[j].language) == 0 &&
+ 				strcmp(keyPair.translation, sourceEntries[i].pairs[j].translation) == 0)
+ 				{
+ 					index = i;
+ 					found = true;	
+ 				}
 	return index;
 }
 
@@ -2026,7 +2071,16 @@ translateTextInput(entryType sourceEntries[], int sourceEntriesCount)
 	string150 result;
 	int i;
 	
+    printf("Translate Text Input\n");
 	printf("\n");
+    printf("Input for language must:\n");
+    printf(" - have at least 1 character\n");
+    printf(" - not exceed 20 characters\n");
+    printf("\n");
+    printf("Input for text to translate must:\n");
+    printf("have at least 1 character\n");
+    printf("not exceed 150 characters\n");
+    printf("\n");
 	
 	do 
     {
@@ -2159,6 +2213,7 @@ translateFile(entryType sourceEntries[], int sourceEntriesCount)
 	int wordsRead;
 	int i, j;
 	
+    printf("Translate File\n");
 	printf("\n");
 	
 	do 
@@ -2207,10 +2262,33 @@ translateFile(entryType sourceEntries[], int sourceEntriesCount)
 	    else
 	    {
 		    printf("Provide the file name of the text file to output to (.txt)\n");
-			printf(" - include the \".txt\" file extension in input\n");
-			printf(" - file name should not exceed 30 characters (including file extension)\n");
-			printf("\n");
-			
+			printf(" - the file name must end in \".txt\"\n");
+            printf(" - There must be at least 1 character before the \".txt\" extension\n");
+            printf(" - the file name must not exceed 30 characters (including file extension)\n");
+            printf(" - The following characters are not allowed to be used in the file name:\n");
+            
+            printf("\n");
+            printf("   - < (less than)\n");
+            printf("   - > (greater than)\n");
+            printf("   - : (colon)\n");
+            printf("   - \" (double quote)\n");
+            printf("   - ' (single quote)\n");
+            printf("   - \\ (forward slash)\n");
+            printf("   - / (back slash)\n");
+            printf("   - | (vertical bar)\n");
+            printf("   - ? (question mark)\n");
+            printf("   - * (asterisk)\n");
+            printf("   - # (hashtag)\n");
+            printf("   - $ (dollar sign)\n");
+            printf("   - %% (percent)\n");
+            printf("   - & (ampersand)\n");
+            printf("   - { (left brace)\n");
+            printf("   - } (right brace)\n");
+
+            printf("\n");
+            printf(" - only the \".txt\" file extension is case sensitve\n");
+            printf(" - if a file with the provided filename already exists, its contents will be overwritten\n");
+    
 		    do
 		    {
 		    	initString(filename);
@@ -2288,10 +2366,14 @@ translate()
     string30 filename;
     char charAfterFilename;
     int i = 0;
-    
+    printf(DIVIDER);
+    printf("\n");
+    printf("Translate\n");
+    printf("\n");
 	printf("Provide the file name of the text file (.txt) to obtain translation data from\n");
 	printf(" - include the \".txt\" file extension in input\n");
 	printf(" - file name should not exceed 30 characters (including file extension)\n");
+    printf(" - only the \".txt\" file extension is case sensitive\n");
 	printf("\n");
     
 	do
@@ -2315,7 +2397,7 @@ translate()
     do
     {
         choice = translateMenu();
-		
+		printf(DIVIDER);
         switch(choice)
         {
             case 1: translateTextInput(sourceEntries, sourceEntriesCount);
@@ -2325,4 +2407,42 @@ translate()
                     break;
         }
     } while (choice != 3);
+}
+
+/* mainMenu contains all functions related to the main menu of the program 
+   @return number corresponding to option selected
+*/
+void 
+mainMenu()
+{
+	int choice;
+	bool isThereInput;
+	
+    string30 options[3] = {"Manage Data", "Translate Menu", "Exit"};
+	
+
+    printf(DIVIDER);
+    printf("\n");
+    printf("Main Menu\n");
+    printf("\n");
+
+	printMenu(options, 3);
+	
+	do
+	{   choice = 0;
+		printf("Select an option from the menu above: ");
+		isThereInput = getInteger(&choice);
+
+        switch(choice)
+        {
+            case 1: manageData();
+                    break;
+            
+            case 2: translate();
+                    break;
+        }
+				
+	} while (!isMenuInputValid(isThereInput, 1, 3, choice));
+    
+    
 }
