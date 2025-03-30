@@ -225,7 +225,7 @@ manageDataMenu(int entryCount)
     return choice;
 }
 
-/* manageDataMenu contains all functions related to the "Translate" menu (printing, getting input, and input validation)
+/* translateMenu contains all functions related to the "Translate" menu (printing, getting input, and input validation)
    @param entryCount - number of entries initialized
    @return number corresponding to option selected
 */
@@ -1470,7 +1470,7 @@ readEntry(FILE* file, entryType* bufferEntry)
              wasEntryRead = true;
          }
      } while (strcmp(readLine, "\n") != 0 && readResult != NULL);
-    
+              //strcmp(readLine, "\n")... checks if the line read is a seperator between entries
      return wasEntryRead;   
  }
 
@@ -1669,7 +1669,7 @@ importData(entryType entries[], int* entryCount)
      {
          initString(filename);
          charAfterFilename = '\n';
-         getFilename(filename, &charAfterFilename);
+         getFilename(filename, &charAfterFilename);  // getting import file
          formatFilename(filename);
          importFile = fopen(filename, "r");
      } while (!isExistingTextFilenameValid(filename, charAfterFilename, importFile));
@@ -1677,7 +1677,7 @@ importData(entryType entries[], int* entryCount)
      
      printf("Would you like to proceed with import\n");
     
-     if (isOperationConfirmed())
+     if (isOperationConfirmed()) // user is asked if import will be done
      {
         do 
         {   
@@ -1688,13 +1688,13 @@ importData(entryType entries[], int* entryCount)
              if (wasEntryRead)
              {
              	printf("\n");
-                printEntry(*temp, stdout);
+                printEntry(*temp, stdout);                                  
                 printf("\n");
                 printf("Would you like to import this entry\n");
                 willImportEntry =  isOperationConfirmed();
              }
              
-             if(willImportEntry)
+             if(willImportEntry)                                // reading import file
              {
                  entries[*entryCount] = *temp;
                  sortIntraEntry(&entries[*entryCount]);
@@ -1715,7 +1715,7 @@ importData(entryType entries[], int* entryCount)
         
          
      }
-     else 
+     else // import aborted
      {
          printf(YELLOWFORMATSTRING, "import cancelled\n");
      }
@@ -1780,7 +1780,7 @@ exportData(entryType entries[], int entryCount)
     printf("\n");
     printf("Would you like to proceed with export?\n");
 
-    if (isOperationConfirmed())
+    if (isOperationConfirmed()) // user is asked export will be done
     {
         exportFile = fopen(filename, "w");
         printAllEntriesToFile(entries, entryCount, exportFile);
@@ -1789,7 +1789,7 @@ exportData(entryType entries[], int entryCount)
         printf(GREENFORMATSTRING, filename);
         printf("\n");
     }
-    else
+    else // export aborted
     {
         printf(YELLOWFORMATSTRING, "Export cancelled\n");
     }
@@ -1799,6 +1799,8 @@ exportData(entryType entries[], int entryCount)
     printf("\n");
 }
 
+/* manageData calls all program features under manage data
+*/
 void 
 manageData()
 {
@@ -2354,7 +2356,7 @@ translateFile(entryType sourceEntries[], int sourceEntriesCount)
 	printf("\n");
 }
 
-/* translate contains all features under "Translate"
+/* translate call program features under "Translate"
 */
 void 
 translate()
@@ -2410,30 +2412,40 @@ translate()
 }
 
 /* mainMenu contains all functions related to the main menu of the program 
-   @return number corresponding to option selected
-*/
-void 
-mainMenu()
-{
-	int choice;
-	bool isThereInput;
-	
-    string30 options[3] = {"Manage Data", "Translate Menu", "Exit"};
-	
+    @return number corresponding to option selected
+ */
+ int
+ mainMenu()
+ {
+ 	int choice;
+ 	bool isChoiceValid;
+ 	string30 options[3] = {"Manage Data", "Translate Menu", "Exit Program"};
+ 	
+ 	printMenu(options, 3);
+ 	
+ 	do
+ 	{
+ 		printf("Select an option from the menu above: ");
+ 		isChoiceValid = getInteger(&choice);
+ 				
+ 	} while (!isMenuInputValid(isChoiceValid, 1, 3, choice));
+     
+ 	return choice;
+ }
 
-    printf(DIVIDER);
-    printf("\n");
+ int main()
+ {
+    int choice;
+
     printf("Main Menu\n");
     printf("\n");
 
-	printMenu(options, 3);
-	
-	do
-	{   choice = 0;
-		printf("Select an option from the menu above: ");
-		isThereInput = getInteger(&choice);
+    do 
+    {
+        printf(DIVIDER);
+        choice = mainMenu();
 
-        switch(choice)
+        switch (choice)
         {
             case 1: manageData();
                     break;
@@ -2441,8 +2453,5 @@ mainMenu()
             case 2: translate();
                     break;
         }
-				
-	} while (!isMenuInputValid(isThereInput, 1, 3, choice));
-    
-    
-}
+    } while (choice != 3);
+ }
