@@ -56,7 +56,7 @@ setEntryData(entryType* entry)
 
 /* getInteger gets an integer input
    @param num - address where integer input is stored
-   @return false if the only the newline character was entered and true otherwise
+   @return false if only the newline character was entered and true otherwise
 */
 bool 
 getInteger(int* num)
@@ -2045,6 +2045,8 @@ findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPa
  					index = i;
  					found = true;	
  				}
+	
+	return index;
 }
 
 int
