@@ -231,7 +231,7 @@ manageDataMenu(int entryCount)
         printMenu(options, 2);
         upperBound = 2;
     }
-    printf("Select and option from the menu above\n");
+    printf("Select an option from the menu above\n");
     choice = getAndValidateMenuInput(1, upperBound);
     return choice;
 }
@@ -250,7 +250,7 @@ translateMenu()
     printMenu(options, 3);
     upperBound = 3;
     
-    printf("Select and option from the menu above\n");
+    printf("Select an option from the menu above\n");
     choice = getAndValidateMenuInput(1, upperBound);
     return choice;
 }
@@ -2122,67 +2122,73 @@ translateFile(entryType sourceEntries[], int n_sourceEntries)
 	    separateSentences(textFile, sentences, &sentenceCount);
 		fclose(textFile);
 	    
-	    printf("Provide the file name of the text file to output to (.txt)\n");
-		printf(" - include the \".txt\" file extension in input\n");
-		printf(" - file name should not exceed 30 characters (including file extension)\n");
-		printf("\n");
-		
-	    do
+	    if (sentenceCount == 0)
+	    	printf(REDFORMATSTRING, "No sentences found in text file\n");
+	    
+	    else
 	    {
-	    	initString(filename);
-	    	charAfterFilename = '\n';
-			getFilename(filename, &charAfterFilename);
-			formatFilename(filename);
-			outputFile = fopen(filename, "wt");
-		} while (!isExistingTextFilenameValid(filename, charAfterFilename, textFile));
-		
-		for (j = 0; j < sentenceCount; j++)
-		{
-			n_words = 0;
-			tokenize(sentences[j], tokens, &n_words);
-		
-			for (i = 0; i < n_words; i++)
+		    printf("Provide the file name of the text file to output to (.txt)\n");
+			printf(" - include the \".txt\" file extension in input\n");
+			printf(" - file name should not exceed 30 characters (including file extension)\n");
+			printf("\n");
+			
+		    do
+		    {
+		    	initString(filename);
+		    	charAfterFilename = '\n';
+				getFilename(filename, &charAfterFilename);
+				formatFilename(filename);
+				outputFile = fopen(filename, "wt");
+			} while (!isExistingTextFilenameValid(filename, charAfterFilename, textFile));
+			
+			for (j = 0; j < sentenceCount; j++)
 			{
-				strcpy(keyPair.translation, tokens[i]);
-				keyEntryIndex = findKeyEntry(sourceEntries, n_sourceEntries, keyPair);
-		
-				if (keyEntryIndex != -1)
+				n_words = 0;
+				tokenize(sentences[j], tokens, &n_words);
+			
+				for (i = 0; i < n_words; i++)
 				{
-					keyEntry = sourceEntries[keyEntryIndex];
-					transPairIndex = findTransInEntry(keyEntry, destLang);
-					
-					if (transPairIndex != -1)
+					strcpy(keyPair.translation, tokens[i]);
+					keyEntryIndex = findKeyEntry(sourceEntries, n_sourceEntries, keyPair);
+			
+					if (keyEntryIndex != -1)
 					{
-						strcpy(tokens[i], keyEntry.pairs[transPairIndex].translation);
-					}
+						keyEntry = sourceEntries[keyEntryIndex];
+						transPairIndex = findTransInEntry(keyEntry, destLang);
 						
+						if (transPairIndex != -1)
+						{
+							strcpy(tokens[i], keyEntry.pairs[transPairIndex].translation);
+						}
+							
+					}
 				}
+				
+				detokenize(sentences[j], tokens, n_words);
 			}
 			
-			detokenize(sentences[j], tokens, n_words);
+			for (i = 0; i < sentenceCount; i++)
+			{
+				fprintf(outputFile, "%s", sentences[i]);
+				fprintf(outputFile, "\n");
+			}
+				
+			fclose(outputFile);
+			outputFile = fopen(filename, "rt");
+				
+			printf("\n");
+			printf("The translation of the text file is:\n");
+			printf("\n");
+			
+			while (!feof(outputFile))
+			{
+				wordsRead = fscanf(outputFile, "%c", &ch);
+				
+				if (wordsRead > 0)
+					printf("%c", ch);
+			}	
 		}
-		
-		for (i = 0; i < sentenceCount; i++)
-		{
-			fprintf(outputFile, "%s", sentences[i]);
-			fprintf(outputFile, "\n");
-		}
-			
-		fclose(outputFile);
-		outputFile = fopen(filename, "rt");
-			
-		printf("\n");
-		printf("The translation of the text file is:\n");
-		printf("\n");
-		
-		while (!feof(outputFile))
-		{
-			wordsRead = fscanf(outputFile, "%c", &ch);
-			
-			if (wordsRead > 0)
-				printf("%c", ch);
-		}
-			
+	    
 		printf("\n");
 		printf("Would you like to translate another text file?\n");			
 		
