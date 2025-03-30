@@ -1,1 +1,1 @@
-Would you like to delete 
+isMenuInputValid

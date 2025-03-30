@@ -1094,10 +1094,6 @@ deleteTranslation(entryType entries[], int *entryCount)
                     printf(YELLOWFORMATSTRING, "Deletion cancelled\n");
                 }
             }
-            else
-            {
-                printf(REDFORMATSTRING, "The choice entered is invalid\n");
-            }
             willDeleteAnother = false;
             if (entries[indexOfEntryToEdit].pairCount > 0)
             {
