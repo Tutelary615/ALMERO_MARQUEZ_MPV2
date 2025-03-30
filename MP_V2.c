@@ -799,6 +799,7 @@ addLTPair(entryType* entry)
             strcpy(entry->pairs[entry->pairCount].translation, transToAdd);
             entry->pairCount++;
             sortIntraEntry(entry);
+            printf("\n");
             printf(GREENFORMATSTRING, "Translation successfully added\n");
         }
         else
@@ -959,9 +960,10 @@ addTranslation(entryType entries[], int entryCount)
     {   
         do
         {   
-            printf(DIVIDER);
+            printf("\n");
+            printf("Entry for modification:\n");
             printEntry(entries[indexOfEntryToEdit], stdout);
-            printf(DIVIDER);
+            printf("\n");
             printf("Enter language and translation to be added\n");
             addLTPair(&entries[indexOfEntryToEdit]);
             sortIntraEntry(&entries[indexOfEntryToEdit]);
@@ -973,10 +975,10 @@ addTranslation(entryType entries[], int entryCount)
             }
         } while (willAddAnotherTranslation && entries[indexOfEntryToEdit].pairCount < MAX_PAIRS_PER_ENTRY);
 
-        sortInterEntry(entries, entryCount);
         printf("\n");
         printEntry(entries[indexOfEntryToEdit], stdout);
         printf("\n");
+        sortInterEntry(entries, entryCount);
     }
     
     if (entriesWithKeyCount > 0 && entries[indexOfEntryToEdit].pairCount == MAX_PAIRS_PER_ENTRY)
@@ -2033,6 +2035,7 @@ findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPa
  					index = i;
  					found = true;	
  				}
+    return index;
 }
 
 int

@@ -2,6 +2,5 @@
 
 int main()
 {
-    string50 str = "hello";
-    printf("%s", strtok(str," "));
+   mainMenu();
 }

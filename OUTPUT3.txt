@@ -25,7 +25,7 @@ English: banana
 Filipino: saging
 Chinese: xianggang
 
-English: io
+English: i
 Filipino: ako
 Chinese: wo
 Japanese: watashi

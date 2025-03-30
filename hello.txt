@@ -1,30 +1,38 @@
-English: chair
-Filipino: upuan
-Spanish: silla
+Chinese: xianggang
+English: banana
+Filipino: saging
 
-English: food
-Spanish: comida
-Tagalog: pagkain
+Chinese: niu
+English: cow
+Filipino: baka
+Japanese: ushi
+Spanish: vaca
 
-English: food
-Filipino: pagkain
-German: sausage
-Japanse: af
-Spanish: amor
+Chinese: chi
+English: eat
+Filipino: kain
+Japanese: taberu
+Spanish: comer
 
-Chinese: nihao
-English: hello
-Korean: annyeong
-Spanish: hola
+Chinese: ma
+English: horse
+Filipino: kabayo
+Japanese: uma
+Spanish: caballo
 
-English: love
-German: hitler
-Italian: amore
-Spanish: amor
-Tagalog: mahal
+Chinese: wo
+English: io
+Filipino: ako
+Japanese: watashi
 
-French: amour
-Japanese: ai
-Tagalog: mahal
-Tagalog: pag-ibig
+Chinese: lanjiao
+English: penis
+Filipino: titi
+Filipino: burat
+Filipino: oten
+Filipino: pototoy
+Filipino: junjun
+Japanese: chinpo
+Japanese: ochinchin
+Japanese: chinko
 
