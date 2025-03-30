@@ -3,6 +3,7 @@
 #define GREENFORMATSTRING "\033[0;32m%s\033[0m"
 #define PURPLEFORMATSTRING "\033[0;35m%s\033[0m"
 #define HIGHLIGHTED_PAIR_FORMAT_STRING "\033[0;36m%s: %s <\033[0m\n"
+#define DIVIDER "*************************************************************************************************************\n"
 #define MAX_ENTRIES 150
 #define MAX_PAIRS_PER_ENTRY 10
 
