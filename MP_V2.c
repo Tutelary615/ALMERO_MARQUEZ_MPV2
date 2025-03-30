@@ -16,16 +16,6 @@ John Thomas Marquez, DLSU ID# 12413445
 #include <conio.h>
 #include "MP_HEADER.h"
 
-// TO REMOVE 
-void 
-printStringASCII(char str[])
-{
-    for (int i = 0; i <= strlen(str); i++)
-    {
-        printf("%d.", str[i]);
-    }
-}
-
 /* initString sets all the characters in a string to '\0'
    @param str - string to be initialized
 */
@@ -56,7 +46,7 @@ setEntryData(entryType* entry)
 
 /* getInteger gets an integer input
    @param num - address where integer input would be stored if the input is valid
-   @return false if the only the newline character was entered and true otherwise
+   @return false if only the newline character was entered and true otherwise
 */
 bool 
 getInteger(int* num)
@@ -1885,7 +1875,7 @@ removePunctuation(string150 textInput)
     int i, j;
 
     for (i = 0; i < len; i++)
-        if (ispunct(textInput[i]))
+        if (ispunct(textInput[i]) && textInput[i] != '-') // checks whether character is a punctuation mark, excluding hyphen
         {
             for (j = i; j < len; j++)
             {
@@ -1917,7 +1907,7 @@ tokenize(string150 textInput, string50 tokens[], int* tokenCount)
     char* token;
     string50 tempTokens[50] = {};
     
-    removePunctuation(textInput);
+    removePunctuation(textInput); // removal of punctuation before tokenization
 
     token = strtok(textInput, " ");
 
@@ -1943,13 +1933,13 @@ detokenize(string150 result, string50 tokens[], int tokenCount)
 {
     int i;
 
-    strcpy(result, "");
+    strcpy(result, ""); // initialization of result string
 
     for (i = 0; i < tokenCount; i++)
     {
         strcat(result, tokens[i]);
 
-        if (i != tokenCount - 1)
+        if (i != tokenCount - 1) // appends space to tokens that are not the last
         {
             strcat(result, " ");
         }
@@ -1965,15 +1955,15 @@ formatTextToTranslate(string150 text)
 {
     int i;
     int lengthOfText = strlen(text);
-    if (text[lengthOfText - 1] == '\n')
+    if (text[lengthOfText - 1] == '\n') // if character before null byte is newline
     {
-        text[lengthOfText - 1] = '\0';
+        text[lengthOfText - 1] = '\0'; // replaces newline with null byte
         lengthOfText--;
     }
     
     for (i = 0; i < lengthOfText; i++)
     {
-        text[i] = tolower(text[i]);
+        text[i] = tolower(text[i]); // sets all letters to lowercase
     }
 }
 
@@ -2038,14 +2028,16 @@ findKeyEntry(entryType sourceEntries[], int sourceEntriesCount, LTPairType keyPa
 	int index = -1;
 	bool found = false;
 	
-	for (i = 0; i < sourceEntriesCount && !found; i++)
- 		for (j = 0; j < sourceEntries[i].pairCount && !found; j++)
+	for (i = 0; i < sourceEntriesCount && !found; i++) // loops through all entries in source data
+ 		for (j = 0; j < sourceEntries[i].pairCount && !found; j++) // loops through all pairs in each entry
  			if (strcmp(keyPair.language, sourceEntries[i].pairs[j].language) == 0 &&
- 				strcmp(keyPair.translation, sourceEntries[i].pairs[j].translation) == 0)
+ 				strcmp(keyPair.translation, sourceEntries[i].pairs[j].translation) == 0) // if language-translation pair matches key
  				{
  					index = i;
  					found = true;	
  				}
+	
+	return index;
 }
 
 int
@@ -2055,9 +2047,9 @@ findTransInEntry(entryType keyEntry, string20 destLang)
 	int index = -1;
     bool isFound = false;
 	
-	for (i = 0; i < keyEntry.pairCount && !isFound; i++)
+	for (i = 0; i < keyEntry.pairCount && !isFound; i++) // loops through pairs of key entry
     {
-		if (strcmp(keyEntry.pairs[i].language, destLang) == 0)
+		if (strcmp(keyEntry.pairs[i].language, destLang) == 0) // if target language has a translation in key entry
 		{
 			index = i;
 			isFound = true;
@@ -2109,7 +2101,7 @@ translateTextInput(entryType sourceEntries[], int sourceEntriesCount)
         formatLanguage(sourceLang);
     } while (!isLanguageValid(sourceLang, charAfterLang));
     
-    strcpy(keyPair.language, sourceLang);
+    strcpy(keyPair.language, sourceLang); // sets key language to entered source language
     
     do
     {
@@ -2136,25 +2128,25 @@ translateTextInput(entryType sourceEntries[], int sourceEntriesCount)
 		n_words = 0;
 		tokenize(input, tokens, &n_words);
 	
-		for (i = 0; i < n_words; i++)
+		for (i = 0; i < n_words; i++) // loops through every word in input string
 		{
-			strcpy(keyPair.translation, tokens[i]);
+			strcpy(keyPair.translation, tokens[i]); // sets key translation to current token
 			keyEntryIndex = findKeyEntry(sourceEntries, sourceEntriesCount, keyPair);
 	
-			if (keyEntryIndex != -1)
+			if (keyEntryIndex != -1) // if entry containing key pair was found in data
 			{
 				keyEntry = sourceEntries[keyEntryIndex];
 				transPairIndex = findTransInEntry(keyEntry, destLang);
 				
-				if (transPairIndex != -1)
+				if (transPairIndex != -1) // if pair with target language was found in key entry
 				{
-					strcpy(tokens[i], keyEntry.pairs[transPairIndex].translation);
+					strcpy(tokens[i], keyEntry.pairs[transPairIndex].translation); // replaces original token with its equivalent in the target language
 				}
 					
 			}
 		}
 		
-		detokenize(result, tokens, n_words);
+		detokenize(result, tokens, n_words); // recombines tokens, changed or unchanged, into a single string
 		
 		printf("\n");
 		printf("In %s, \"%s\" is \"%s\"\n", destLang, original, result);
@@ -2162,7 +2154,7 @@ translateTextInput(entryType sourceEntries[], int sourceEntriesCount)
 		
 		printf("Would you like to make another translation?\n");			
 		
-	} while (isOperationConfirmed());
+	} while (isOperationConfirmed()); // loops translation until aborted
 	
 	printf("\n");
 }
@@ -2191,10 +2183,10 @@ separateSentences(FILE *textFile, string150 sentences[], int *sentenceCount)
 		
 		if (wordsRead > 0 && (buffer[bufferLen - 1] != '.' &&
 							  buffer[bufferLen - 1] != '?' &&
-							  buffer[bufferLen - 1] != '!'))
-			strcat(tempSentences[i], " ");
+							  buffer[bufferLen - 1] != '!')) // if string does not end with sentence terminator
+			strcat(tempSentences[i], " "); // appends space to temp sentence string
 				
-		else if (wordsRead > 0)
+		else if (wordsRead > 0) // if sentence terminator is found
 		{
 			(*sentenceCount)++;
 			i++;
@@ -2316,9 +2308,10 @@ translateFile(entryType sourceEntries[], int sourceEntriesCount)
 				outputFile = fopen(filename, "wt");
 			} while (!isExistingTextFilenameValid(filename, charAfterFilename, textFile));
 			
-			for (j = 0; j < sentenceCount; j++)
+			for (j = 0; j < sentenceCount; j++) // loops through every sentence string in sentence array
 			{
 				n_words = 0;
+				formatTextToTranslate(sentences[j]);
 				tokenize(sentences[j], tokens, &n_words);
 			
 				for (i = 0; i < n_words; i++)
@@ -2340,13 +2333,13 @@ translateFile(entryType sourceEntries[], int sourceEntriesCount)
 				}
 				
 				detokenize(sentences[j], tokens, n_words);
-			}
+			} // same algorithm used in translateTextInput
 			
 			for (i = 0; i < sentenceCount; i++)
 			{
 				fprintf(outputFile, "%s", sentences[i]);
 				fprintf(outputFile, "\n");
-			}
+			} // prints all sentences to output file, each separated by a newline character
 				
 			fclose(outputFile);
 			outputFile = fopen(filename, "rt");
@@ -2361,13 +2354,13 @@ translateFile(entryType sourceEntries[], int sourceEntriesCount)
 				
 				if (wordsRead > 0)
 					printf("%c", ch);
-			}	
+			} // prints the contents of output file to stdout character by character
 		}
 	    
 		printf("\n");
 		printf("Would you like to translate another text file?\n");			
 		
-	} while (isOperationConfirmed());
+	} while (isOperationConfirmed()); // loops translation until aborted
 	printf("\n");
 }
 
